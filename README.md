@@ -148,6 +148,13 @@ npm run build
 
 Open `demo/index.html` through a local web server to try it.
 
+### Releases
+
+Releases are automatic. When a change to `src/` is merged into `main`, the release workflow bumps the version, rebuilds `dist/`, updates `CHANGELOG.md` and publishes a GitHub release with the minified files. Don't change version numbers by hand.
+
+- **Changelog:** write your entry under `## Unreleased` in `CHANGELOG.md` in your PR. Without one, the release lists the issues closed since the last release.
+- **Version:** patch by default. Label the PR `release: minor` or `release: major` for a bigger bump.
+
 ## Licence
 
 [MIT](LICENSE) © WPGenius

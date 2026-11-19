@@ -1,0 +1,89 @@
+name: Release
+
+# A change to the library code (src/) on main makes a release: the version is
+# bumped, dist/ rebuilt, CHANGELOG.md updated, and a tagged GitHub release is
+# published with the minified files. Patch by default; label the merged PR
+# "release: minor" or "release: major" for a bigger bump.
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'src/**'
+  workflow_dispatch:
+    inputs:
+      bump:
+        description: Version bump
+        type: choice
+        options: [patch, minor, major]
+        default: patch
+
+permissions:
+  contents: write
+  pull-requests: read
+  issues: read
+
+concurrency:
+  group: release
+  cancel-in-progress: false
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    # The release commit itself also touches src/ (version banners); skip it.
+    if: "!startsWith(github.event.head_commit.message, 'Release v')"
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - run: npm ci
+
+      - name: Choose the version bump
+        id: bump
+        env:
+          GH_TOKEN: ${{ github.token }}
+          INPUT_BUMP: ${{ inputs.bump }}
+        run: |
+          bump="${INPUT_BUMP:-patch}"
+          if [ "${{ github.event_name }}" = "push" ]; then
+            labels="$(gh api "repos/${{ github.repository }}/commits/${{ github.sha }}/pulls" --jq '[.[0].labels[]?.name] | join(",")' || true)"
+            case ",$labels," in
+              *",release: major,"*) bump=major ;;
+              *",release: minor,"*) bump=minor ;;
+            esac
+          fi
+          echo "bump=$bump" >> "$GITHUB_OUTPUT"
+
+      - name: Bump version and update the changelog
+        id: release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: .github/scripts/release.sh "${{ steps.bump.outputs.bump }}"
+
+      - run: npm run build
+
+      - name: Commit, tag and push
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add package.json package-lock.json src dist CHANGELOG.md
+          git commit -m "Release ${{ steps.release.outputs.tag }}"
+          git tag "${{ steps.release.outputs.tag }}"
+          git push origin HEAD:main "${{ steps.release.outputs.tag }}"
+
+      - name: Publish the GitHub release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          notes="${{ steps.release.outputs.notes_file }}"
+          printf '\n**Download:** `foldbox.min.js` and `foldbox.min.css` below, or the readable files in `src/`.\n' >> "$notes"
+          gh release create "${{ steps.release.outputs.tag }}" \
+            --title "Foldbox ${{ steps.release.outputs.version }}" \
+            --notes-file "$notes" \
+            dist/foldbox.min.js dist/foldbox.min.css
