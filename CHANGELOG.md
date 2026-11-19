@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 1.0.3 – 2026-11-20
 
 ### Fixed
 - Images, videos and video posters are sized to their slide, so they are no longer cut off while a phone's address bar is showing or when the caption is long. (#17)
@@ -12,6 +12,8 @@
 - An unknown `type` or `data-type` falls back to detecting the type from the URL. (#26)
 - `src` can be a `URL` object. (#27)
 - Re-filtering the grid during a fade-out no longer shows cards twice. (#28)
+
+Thanks to @deshabhishek007 for reporting and fixing these.
 
 ## 1.0.2 – 2026-11-20
 

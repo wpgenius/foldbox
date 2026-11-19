@@ -1,5 +1,5 @@
 /*!
- * Foldbox 1.0.2 – lightbox and filterable grid for photos and videos.
+ * Foldbox 1.0.3 – lightbox and filterable grid for photos and videos.
  * https://github.com/wpgenius/foldbox
  * (c) WPGenius. Released under the MIT License.
  */
@@ -14,7 +14,7 @@
 } )( typeof self !== 'undefined' ? self : this, function () {
 	'use strict';
 
-	const VERSION = '1.0.2';
+	const VERSION = '1.0.3';
 
 	const DEFAULTS = {
 		index: 0,
