@@ -13,12 +13,28 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
       - uses: actions/setup-node@v4
         with:
           node-version: 22
           cache: npm
       - run: npm ci
       - run: node --check src/foldbox.js
-      - run: npm run build
-      - name: dist is up to date
-        run: git diff --exit-code -- dist
+      - name: Build
+        run: npm run build
+
+      # dist/ and CHANGELOG.md are written by the release workflow only. If a PR
+      # changes them too, every release makes the open PRs conflict.
+      - name: PR leaves dist/ and CHANGELOG.md to the release workflow
+        if: github.event_name == 'pull_request'
+        env:
+          BASE: ${{ github.event.pull_request.base.sha }}
+        run: |
+          changed="$(git diff --name-only "$BASE"...HEAD -- dist CHANGELOG.md)"
+          if [ -n "$changed" ]; then
+            echo "::error::Please don't commit these files; the release workflow writes them when your PR is merged:"
+            echo "$changed"
+            echo "Undo with: git checkout origin/main -- dist CHANGELOG.md"
+            exit 1
+          fi

@@ -150,9 +150,10 @@ Open `demo/index.html` through a local web server to try it.
 
 ### Releases
 
-Releases are automatic. When a change to `src/` is merged into `main`, the release workflow bumps the version, rebuilds `dist/`, updates `CHANGELOG.md` and publishes a GitHub release with the minified files. Don't change version numbers by hand.
+Releases are automatic. When a change to `src/` is merged into `main`, the release workflow bumps the version, rebuilds `dist/`, writes the `CHANGELOG.md` entry and publishes a GitHub release with the minified files.
 
-- **Changelog:** write your entry under `## Unreleased` in `CHANGELOG.md` in your PR. Without one, the release lists the issues closed since the last release.
+- **In a PR, change `src/` (and docs) only.** Don't commit `dist/` or `CHANGELOG.md`, and don't change version numbers; the release does that. CI fails if a PR touches `dist/` or `CHANGELOG.md`, so open PRs never conflict with a release.
+- **Changelog:** one line per issue closed since the previous release, so link your PR to its issue (`Fixes #12`).
 - **Version:** patch by default. Label the PR `release: minor` or `release: major` for a bigger bump.
 
 ## Licence
