@@ -235,6 +235,10 @@
 		<p>The gallery is dark by default. Choose a built-in theme with the <code>theme</code> option:</p>
 		<div class="code" data-lang="js"><pre><code>Foldbox.open( items, { theme: 'light' } );     // 'dark' (default), 'light' or 'auto'
 Foldbox.bind( '#gallery', { theme: 'auto' } ); // follows the visitor's light/dark setting</code></pre></div>
+		<p><code>'auto'</code> follows the visitor's system setting (<code>prefers-color-scheme</code>, which browsers such as Chrome take from the operating system or their own appearance setting). If your site has its own light/dark switch, pass the theme your page shows instead:</p>
+		<div class="code" data-lang="js"><pre><code>// Example: the site stores its theme in &lt;html data-theme="dark"&gt;.
+const dark = document.documentElement.getAttribute( 'data-theme' ) === 'dark';
+Foldbox.open( items, { theme: dark ? 'dark' : 'light' } );</code></pre></div>
 
 		<h3 id="css-properties">CSS properties</h3>
 		<p>Change colours and sizes with CSS custom properties on <code>.foldbox</code>:</p>

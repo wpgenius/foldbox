@@ -32,7 +32,12 @@
 		return window.matchMedia( '(prefers-color-scheme: dark)' ).matches;
 	}
 
-	window.FoldboxSite = { isDark };
+	// The lightbox theme that matches the page: the page switch wins over the system setting.
+	function lightboxTheme() {
+		return isDark() ? 'dark' : 'light';
+	}
+
+	window.FoldboxSite = { isDark, lightboxTheme };
 
 	document.querySelectorAll( '.theme-toggle' ).forEach( function ( btn ) {
 		const sync = function () {
@@ -44,6 +49,7 @@
 			root.setAttribute( 'data-theme', next );
 			store.set( 'foldbox-site-theme', next );
 			sync();
+			document.dispatchEvent( new CustomEvent( 'foldbox-site-theme' ) );
 		} );
 	} );
 

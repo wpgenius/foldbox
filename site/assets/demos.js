@@ -66,7 +66,7 @@
 			btn.addEventListener( 'click', function () {
 				window.Foldbox.open( album.items, {
 					origin: btn.querySelector( 'img' ),
-					theme: 'auto',
+					theme: window.FoldboxSite.lightboxTheme(),
 					download: true,
 				} );
 			} );
@@ -100,7 +100,7 @@
 			btn.querySelector( 'img' ).src = thumbs[ i ];
 			btn.querySelector( '.badge' ).textContent = labels[ i ];
 			btn.addEventListener( 'click', function () {
-				window.Foldbox.open( media, { index: i, origin: btn.querySelector( 'img' ), theme: 'auto' } );
+				window.Foldbox.open( media, { index: i, origin: btn.querySelector( 'img' ), theme: window.FoldboxSite.lightboxTheme() } );
 			} );
 			mediaRow.appendChild( btn );
 		} );
@@ -108,7 +108,17 @@
 
 	/* 3. Plain links with bind(). */
 	if ( document.getElementById( 'bind-demo' ) ) {
-		window.Foldbox.bind( '#bind-demo', { animation: 'fade', theme: 'auto' } );
+		// bind() reads its options once, so bind again when the page theme changes.
+		const bindDemo = function () {
+			return window.Foldbox.bind( '#bind-demo', { animation: 'fade', theme: window.FoldboxSite.lightboxTheme() } );
+		};
+		let unbind = bindDemo();
+		const rebind = function () {
+			unbind();
+			unbind = bindDemo();
+		};
+		document.addEventListener( 'foldbox-site-theme', rebind );
+		window.matchMedia( '(prefers-color-scheme: dark)' ).addEventListener( 'change', rebind );
 	}
 
 	/* 4. Playground. */
