@@ -1,0 +1,316 @@
+<!doctype html>
+<html lang="en">
+<head>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<title>Foldbox – lightbox and filterable grid for photos and videos</title>
+	<meta name="description" content="Foldbox is a small, dependency-free JavaScript lightbox and filterable grid for images, MP4, YouTube and Vimeo, with thumbnails, zoom, fullscreen, slideshow and smooth filter animations. MIT licensed.">
+	<link rel="icon" href="assets/logo.svg" type="image/svg+xml">
+	<meta property="og:title" content="Foldbox">
+	<meta property="og:description" content="A small, dependency-free lightbox and filterable grid for photos and videos.">
+	<meta property="og:type" content="website">
+	<link rel="stylesheet" href="dist/foldbox.min.css">
+	<link rel="stylesheet" href="assets/site.css">
+</head>
+<body>
+<a class="skip" href="#main">Skip to content</a>
+
+<header class="site-header">
+	<div class="wrap">
+		<a class="brand" href="./">
+			<img src="assets/logo.svg" width="28" height="28" alt="">
+			Foldbox <span class="version" data-version="v"></span>
+		</a>
+		<nav class="site-nav" aria-label="Main">
+			<a href="./" aria-current="page" class="hide-sm">Home</a>
+			<a href="#demos">Demos</a>
+			<a href="docs.html">Docs</a>
+			<a class="gh" href="https://github.com/wpgenius/foldbox" aria-label="Foldbox on GitHub"><svg viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"/></svg></a>
+		</nav>
+		<button type="button" class="theme-toggle" aria-label="Dark page theme" aria-pressed="false">
+			<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M21 12.8A9 9 0 1111.2 3a7 7 0 009.8 9.8z"/></svg>
+		</button>
+	</div>
+</header>
+
+<main id="main">
+	<section class="hero">
+		<div class="wrap">
+			<h1>A lightbox and filterable grid that <em>unfolds</em> from your thumbnails</h1>
+			<p class="lead">Foldbox shows photos, MP4, YouTube and Vimeo in one gallery, with thumbnails, zoom, fullscreen and slideshow, and animates your grid between category filters. No dependencies, about 11&nbsp;KB gzipped.</p>
+			<div class="actions">
+				<a class="btn btn-primary" href="#demos">See the demos</a>
+				<a class="btn" href="#get-started">Get started</a>
+				<a class="btn" href="https://github.com/wpgenius/foldbox">View on GitHub</a>
+			</div>
+			<ul class="facts">
+				<li>No dependencies</li>
+				<li>MIT licensed</li>
+				<li>Touch and keyboard</li>
+				<li>Accessible dialog</li>
+				<li>Privacy-friendly video</li>
+			</ul>
+		</div>
+	</section>
+
+	<section class="section" id="demos">
+		<div class="wrap">
+			<div class="section-head">
+				<span class="eyebrow">Demos</span>
+				<h2>Try it</h2>
+				<p>Everything below is the real library. Click a cover, swipe, pinch, use the arrow keys, or press <kbd>Esc</kbd> to close.</p>
+			</div>
+
+			<div class="demo">
+				<div class="demo-head">
+					<h3>Albums with an animated filter</h3>
+					<p>Pick a category: cards glide into place, fade and scale. Open an album and the gallery grows out of its cover.</p>
+				</div>
+				<div class="chips" id="album-filters" role="group" aria-label="Filter albums">
+					<button type="button" aria-pressed="true" data-filter="*">All</button>
+					<button type="button" aria-pressed="false" data-filter="nature">Nature</button>
+					<button type="button" aria-pressed="false" data-filter="city">City</button>
+					<button type="button" aria-pressed="false" data-filter="video">Video</button>
+				</div>
+				<div class="album-grid" id="album-grid"></div>
+			</div>
+
+			<div class="demo">
+				<div class="demo-head">
+					<h3>Images and videos in one gallery</h3>
+					<p>Images, an MP4 file, YouTube and Vimeo. Video players load only when you press play; YouTube uses <code>youtube-nocookie.com</code>.</p>
+				</div>
+				<div class="media-row" id="media-row"></div>
+			</div>
+
+			<div class="demo">
+				<div class="demo-head">
+					<h3>Plain links, one line of JavaScript</h3>
+					<p>Ordinary <code>&lt;a href&gt;</code> links become a gallery with <code>Foldbox.bind()</code>. This one uses the fade animation.</p>
+				</div>
+				<div class="media-row" id="bind-demo">
+					<a href="https://picsum.photos/id/1035/1600/1067" data-caption="Waterfall"><img loading="lazy" src="https://picsum.photos/id/1035/300/300" width="300" height="300" alt="Waterfall"></a>
+					<a href="https://picsum.photos/id/1039/1600/1067" data-caption="Falls"><img loading="lazy" src="https://picsum.photos/id/1039/300/300" width="300" height="300" alt="Falls"></a>
+					<a href="https://picsum.photos/id/1041/1600/1067" data-caption="Old town"><img loading="lazy" src="https://picsum.photos/id/1041/300/300" width="300" height="300" alt="Old town"></a>
+					<a href="https://picsum.photos/id/1042/1600/1067" data-caption="Bicycle"><img loading="lazy" src="https://picsum.photos/id/1042/300/300" width="300" height="300" alt="Bicycle"></a>
+					<a href="https://picsum.photos/id/1053/1600/1067" data-caption="Dunes"><img loading="lazy" src="https://picsum.photos/id/1053/300/300" width="300" height="300" alt="Dunes"></a>
+				</div>
+				<div class="code" data-lang="html"><pre><code>&lt;div id="gallery"&gt;
+	&lt;a href="large-1.jpg" data-caption="Waterfall"&gt;&lt;img src="small-1.jpg" alt="Waterfall"&gt;&lt;/a&gt;
+	&lt;a href="large-2.jpg" data-caption="Falls"&gt;&lt;img src="small-2.jpg" alt="Falls"&gt;&lt;/a&gt;
+&lt;/div&gt;
+&lt;script&gt;
+	Foldbox.bind( '#gallery', { animation: 'fade' } );
+&lt;/script&gt;</code></pre></div>
+			</div>
+
+			<div class="demo">
+				<div class="demo-head">
+					<h3>Playground</h3>
+					<p>Switch options on and off, then open the gallery. The code updates as you go.</p>
+				</div>
+				<form class="playground" id="playground">
+					<div>
+						<div class="selects">
+							<label>Theme
+								<select name="theme">
+									<option value="dark" selected>Dark</option>
+									<option value="light">Light</option>
+									<option value="auto">Auto</option>
+								</select>
+							</label>
+							<label>Animation
+								<select name="animation">
+									<option value="slide" selected>Slide</option>
+									<option value="fade">Fade</option>
+								</select>
+							</label>
+							<label>Speed
+								<select name="speed">
+									<option value="250">Fast</option>
+									<option value="400" selected>Normal</option>
+									<option value="700">Slow</option>
+								</select>
+							</label>
+						</div>
+						<div class="controls">
+							<label><input type="checkbox" name="thumbnails" checked> Thumbnails</label>
+							<label><input type="checkbox" name="captions" checked> Captions</label>
+							<label><input type="checkbox" name="counter" checked> Counter</label>
+							<label><input type="checkbox" name="zoom" checked> Zoom</label>
+							<label><input type="checkbox" name="fullscreen" checked> Fullscreen</label>
+							<label><input type="checkbox" name="slideshow" checked> Slideshow</label>
+							<label><input type="checkbox" name="slideshowAutostart"> Autoplay</label>
+							<label><input type="checkbox" name="download"> Download</label>
+							<label><input type="checkbox" name="loop" checked> Loop</label>
+							<label><input type="checkbox" name="swipeToClose" checked> Swipe to close</label>
+						</div>
+						<button type="submit" class="btn btn-primary" id="playground-open">Open the gallery</button>
+					</div>
+					<div class="code" id="playground-code" data-lang="js"><span class="label">Your code</span><pre><code></code></pre></div>
+				</form>
+			</div>
+		</div>
+	</section>
+
+	<section class="section" id="how">
+		<div class="wrap">
+			<div class="section-head">
+				<span class="eyebrow">How it works</span>
+				<h2>Three steps</h2>
+				<p>Foldbox is two files. Include them, describe your items, and open the gallery.</p>
+			</div>
+			<div class="steps">
+				<div class="step">
+					<h3>Include the files</h3>
+					<p>One stylesheet and one script, from a CDN or your own server.</p>
+					<div class="code" data-lang="html"><pre><code>&lt;link rel="stylesheet" href="foldbox.min.css"&gt;
+&lt;script src="foldbox.min.js"&gt;&lt;/script&gt;</code></pre></div>
+				</div>
+				<div class="step">
+					<h3>Describe your items</h3>
+					<p>A list of images or videos. The type is detected from the URL.</p>
+					<div class="code" data-lang="js"><pre><code>const items = [
+	{ src: 'beach.jpg', caption: 'Beach' },
+	{ src: 'clip.mp4', poster: 'clip.jpg' },
+	{ src: 'https://youtu.be/aqz-KE-bpKQ' },
+];</code></pre></div>
+				</div>
+				<div class="step">
+					<h3>Open the gallery</h3>
+					<p>From a click, a button or anywhere in your code.</p>
+					<div class="code" data-lang="js"><pre><code>button.addEventListener( 'click', () =&gt; {
+	Foldbox.open( items, { origin: button } );
+} );</code></pre></div>
+				</div>
+			</div>
+		</div>
+	</section>
+
+	<section class="section" id="features">
+		<div class="wrap">
+			<div class="section-head">
+				<span class="eyebrow">Features</span>
+				<h2>What's inside</h2>
+			</div>
+			<div class="features">
+				<div class="feature">
+					<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M10 9l5 3-5 3z"/></svg>
+					<h3>Images and video</h3>
+					<p>JPG, PNG, WebP with <code>srcset</code>, MP4 and WebM, YouTube and Vimeo in the same gallery.</p>
+				</div>
+				<div class="feature">
+					<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></svg>
+					<h3>Filterable grid</h3>
+					<p>Animate any CSS grid, flex or float layout between filters. Cards glide, fade and scale.</p>
+				</div>
+				<div class="feature">
+					<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="6"/><path d="M20 20l-4.5-4.5M11 8v6M8 11h6"/></svg>
+					<h3>Zoom and pan</h3>
+					<p>Double-click, pinch, trackpad pinch or the zoom button. Drag to look around.</p>
+				</div>
+				<div class="feature">
+					<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5"/></svg>
+					<h3>Fullscreen and slideshow</h3>
+					<p>A slideshow with a progress bar, fullscreen mode and an optional download button.</p>
+				</div>
+				<div class="feature">
+					<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 11V6a2 2 0 014 0v5M11 10V4a2 2 0 014 0v7M15 10a2 2 0 014 0v4a7 7 0 01-7 7h-1a7 7 0 01-6-3.5L3 14a2 2 0 013.4-2L7 13"/></svg>
+					<h3>Touch friendly</h3>
+					<p>Swipe between slides, swipe down to close, pinch to zoom.</p>
+				</div>
+				<div class="feature">
+					<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 7v1M8 11h8M12 11v7M9 18l3-4 3 4"/></svg>
+					<h3>Accessible</h3>
+					<p>Dialog semantics, focus trap, keyboard navigation, screen reader labels, reduced motion.</p>
+				</div>
+				<div class="feature">
+					<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3l8 3v6c0 5-3.5 8-8 9-4.5-1-8-4-8-9V6z"/></svg>
+					<h3>Privacy friendly</h3>
+					<p>YouTube and Vimeo players load only on play. YouTube uses the no-cookie domain.</p>
+				</div>
+				<div class="feature">
+					<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 3a9 9 0 000 18z" fill="currentColor"/></svg>
+					<h3>Themes</h3>
+					<p>Dark, light or automatic, and CSS custom properties for your own look.</p>
+				</div>
+				<div class="feature">
+					<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 5h16M4 12h10M4 19h7"/><path d="M17 15l2 2 3-4"/></svg>
+					<h3>Translatable</h3>
+					<p>Every label can be replaced, including the "1 / 5" counter. Works on RTL pages.</p>
+				</div>
+			</div>
+		</div>
+	</section>
+
+	<section class="section" id="get-started">
+		<div class="wrap">
+			<div class="section-head">
+				<span class="eyebrow">Get started</span>
+				<h2>Install</h2>
+				<p>Use the jsDelivr CDN, or download the two files from the latest release.</p>
+			</div>
+			<div class="tabs">
+				<div role="tablist" aria-label="Install method">
+					<button type="button" role="tab" id="tab-cdn" aria-controls="panel-cdn" aria-selected="true">CDN</button>
+					<button type="button" role="tab" id="tab-download" aria-controls="panel-download" aria-selected="false" tabindex="-1">Download</button>
+					<button type="button" role="tab" id="tab-module" aria-controls="panel-module" aria-selected="false" tabindex="-1">Module</button>
+				</div>
+				<div role="tabpanel" id="panel-cdn" aria-labelledby="tab-cdn">
+					<div class="code" data-lang="html"><pre><code>&lt;link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/wpgenius/foldbox@1/dist/foldbox.min.css"&gt;
+&lt;script src="https://cdn.jsdelivr.net/gh/wpgenius/foldbox@1/dist/foldbox.min.js"&gt;&lt;/script&gt;</code></pre></div>
+					<p><code>@1</code> follows the latest 1.x release. Pin an exact version, such as <code>@<span data-version></span></code>, for production.</p>
+				</div>
+				<div role="tabpanel" id="panel-download" aria-labelledby="tab-download" hidden>
+					<p>Download <code>foldbox.min.js</code> and <code>foldbox.min.css</code> from the <a href="https://github.com/wpgenius/foldbox/releases/latest">latest release</a>, put them in your project and include them:</p>
+					<div class="code" data-lang="html"><pre><code>&lt;link rel="stylesheet" href="foldbox.min.css"&gt;
+&lt;script src="foldbox.min.js"&gt;&lt;/script&gt;</code></pre></div>
+				</div>
+				<div role="tabpanel" id="panel-module" aria-labelledby="tab-module" hidden>
+					<p>Foldbox is a UMD module, so it also works with CommonJS and AMD loaders. Without a loader it sets <code>window.Foldbox</code>.</p>
+					<div class="code" data-lang="js"><pre><code>const Foldbox = require( './foldbox.min.js' );</code></pre></div>
+				</div>
+			</div>
+			<p><a class="btn btn-primary" href="docs.html">Read the documentation</a></p>
+		</div>
+	</section>
+
+	<section class="section" id="contributors-section">
+		<div class="wrap">
+			<div class="section-head">
+				<span class="eyebrow">Community</span>
+				<h2>Contributors</h2>
+				<p>Foldbox is open source. Thank you to everyone who has reported issues, tested and sent code.</p>
+			</div>
+			<ul class="people" id="contributors">
+				<li><a href="https://github.com/wpgenius/foldbox/graphs/contributors">See all contributors on GitHub</a></li>
+			</ul>
+			<div class="cta">
+				<h2>Want to help?</h2>
+				<p>Report a bug, suggest a feature or send a pull request.</p>
+				<div class="actions">
+					<a class="btn btn-primary" href="https://github.com/wpgenius/foldbox/issues">Open an issue</a>
+					<a class="btn" href="docs.html#contributing">How to contribute</a>
+				</div>
+			</div>
+		</div>
+	</section>
+</main>
+
+<footer class="site-footer">
+	<div class="wrap">
+		<span>Foldbox <span data-version="v"></span> · MIT licence · © WPGenius</span>
+		<nav aria-label="Footer">
+			<a href="docs.html">Docs</a>
+			<a href="https://github.com/wpgenius/foldbox">GitHub</a>
+			<a href="https://github.com/wpgenius/foldbox/releases">Releases</a>
+			<a href="https://github.com/wpgenius/foldbox/blob/main/CHANGELOG.md">Changelog</a>
+		</nav>
+	</div>
+</footer>
+
+<script src="dist/foldbox.min.js"></script>
+<script src="assets/site.js"></script>
+<script src="assets/demos.js"></script>
+</body>
+</html>

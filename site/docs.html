@@ -1,0 +1,393 @@
+<!doctype html>
+<html lang="en">
+<head>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<title>Foldbox documentation</title>
+	<meta name="description" content="How to install and use Foldbox: lightbox items, options, methods, callbacks, themes, styling, translation and the filterable grid.">
+	<link rel="icon" href="assets/logo.svg" type="image/svg+xml">
+	<link rel="stylesheet" href="dist/foldbox.min.css">
+	<link rel="stylesheet" href="assets/site.css">
+</head>
+<body>
+<a class="skip" href="#main">Skip to content</a>
+
+<header class="site-header">
+	<div class="wrap">
+		<a class="brand" href="./">
+			<img src="assets/logo.svg" width="28" height="28" alt="">
+			Foldbox <span class="version" data-version="v"></span>
+		</a>
+		<nav class="site-nav" aria-label="Main">
+			<a href="./" class="hide-sm">Home</a>
+			<a href="./#demos">Demos</a>
+			<a href="docs.html" aria-current="page">Docs</a>
+			<a class="gh" href="https://github.com/wpgenius/foldbox" aria-label="Foldbox on GitHub"><svg viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"/></svg></a>
+		</nav>
+		<button type="button" class="theme-toggle" aria-label="Dark page theme" aria-pressed="false">
+			<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M21 12.8A9 9 0 1111.2 3a7 7 0 009.8 9.8z"/></svg>
+		</button>
+	</div>
+</header>
+
+<div class="wrap docs">
+	<aside class="toc" aria-label="On this page">
+		<details>
+			<summary>On this page</summary>
+			<ul>
+				<li><a href="#install">Install</a></li>
+				<li><a href="#lightbox">Lightbox</a>
+					<ul>
+						<li><a href="#open">Open from JavaScript</a></li>
+						<li><a href="#bind">Bind links</a></li>
+						<li><a href="#items">Items</a></li>
+						<li><a href="#videos">Videos</a></li>
+						<li><a href="#options">Options</a></li>
+						<li><a href="#methods">Methods</a></li>
+						<li><a href="#callbacks">Callbacks</a></li>
+						<li><a href="#keyboard">Keyboard and touch</a></li>
+					</ul>
+				</li>
+				<li><a href="#themes">Themes and styling</a>
+					<ul>
+						<li><a href="#css-properties">CSS properties</a></li>
+						<li><a href="#custom-theme">Your own theme</a></li>
+					</ul>
+				</li>
+				<li><a href="#translation">Translation</a></li>
+				<li><a href="#grid">Filterable grid</a></li>
+				<li><a href="#security">Captions and security</a></li>
+				<li><a href="#privacy">Privacy</a></li>
+				<li><a href="#accessibility">Accessibility</a></li>
+				<li><a href="#browsers">Browser support</a></li>
+				<li><a href="#contributing">Contributing</a></li>
+			</ul>
+		</details>
+	</aside>
+
+	<main class="doc" id="main">
+		<h1>Documentation</h1>
+		<p class="lead">Everything you need to add Foldbox to a page, configure it and make it your own. For a quick look, try the <a href="./#demos">demos</a> first.</p>
+
+		<h2 id="install">Install</h2>
+		<p>Foldbox is one CSS file and one JavaScript file with no dependencies. Load them from jsDelivr:</p>
+		<div class="code" data-lang="html"><pre><code>&lt;link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/wpgenius/foldbox@1/dist/foldbox.min.css"&gt;
+&lt;script src="https://cdn.jsdelivr.net/gh/wpgenius/foldbox@1/dist/foldbox.min.js"&gt;&lt;/script&gt;</code></pre></div>
+		<p><code>@1</code> follows the latest 1.x release; pin an exact version such as <code>@<span data-version></span></code> in production. Or download <code>foldbox.min.js</code> and <code>foldbox.min.css</code> from the <a href="https://github.com/wpgenius/foldbox/releases/latest">latest release</a> and host them yourself. The readable sources are in <a href="https://github.com/wpgenius/foldbox/tree/main/src"><code>src/</code></a>.</p>
+		<p>The script sets <code>window.Foldbox</code>. It is a UMD module, so CommonJS (<code>require()</code>) and AMD loaders work too.</p>
+
+		<h2 id="lightbox">Lightbox</h2>
+
+		<h3 id="open">Open from JavaScript</h3>
+		<p>Pass a list of items and, optionally, options. <code>origin</code> is the element the gallery grows out of, usually the thumbnail that was clicked.</p>
+		<div class="code" data-lang="js"><pre><code>Foldbox.open(
+	[
+		{ src: 'photo-1.jpg', thumb: 'photo-1-thumb.jpg', alt: 'Beach', caption: '&lt;h4&gt;Beach&lt;/h4&gt;&lt;p&gt;Summer 2026&lt;/p&gt;' },
+		{ src: 'clip.mp4', poster: 'clip.jpg', thumb: 'clip-thumb.jpg' },
+		{ src: 'https://www.youtube.com/watch?v=aqz-KE-bpKQ' },
+		{ src: 'https://vimeo.com/76979871', thumb: 'vimeo-thumb.jpg' },
+	],
+	{ index: 0, origin: document.querySelector( '#cover' ) }
+);</code></pre></div>
+
+		<h3 id="bind">Bind links</h3>
+		<p><code>Foldbox.bind()</code> turns the links inside a container into a gallery. Each <code>href</code> is an item; the link's image becomes the thumbnail and the opening origin. Links added later work too, because one click listener is set on the container.</p>
+		<div class="code" data-lang="html"><pre><code>&lt;div id="gallery"&gt;
+	&lt;a href="large-1.jpg" data-caption="First"&gt;&lt;img src="small-1.jpg" alt=""&gt;&lt;/a&gt;
+	&lt;a href="large-2.jpg" data-caption="Second"&gt;&lt;img src="small-2.jpg" alt=""&gt;&lt;/a&gt;
+	&lt;a href="https://youtu.be/aqz-KE-bpKQ"&gt;Video&lt;/a&gt;
+&lt;/div&gt;
+&lt;script&gt;
+	const unbind = Foldbox.bind( '#gallery', { download: true } );
+	// Later: unbind();
+&lt;/script&gt;</code></pre></div>
+		<p>The first argument is a selector or an element. <code>bind()</code> returns a function that removes the listener; it reads options once, so call it again to change them.</p>
+		<div class="table-wrap"><table>
+			<thead><tr><th>Link attribute</th><th>Description</th></tr></thead>
+			<tbody>
+				<tr><td><code>href</code></td><td>The item: image, video file, YouTube or Vimeo URL.</td></tr>
+				<tr><td><code>data-thumb</code></td><td>Thumbnail for the strip. Defaults to the link's image.</td></tr>
+				<tr><td><code>data-caption</code></td><td>Caption, shown as plain text (see <a href="#security">security</a>).</td></tr>
+				<tr><td><code>data-type</code></td><td><code>image</code>, <code>video</code>, <code>youtube</code> or <code>vimeo</code>, when the URL doesn't show it.</td></tr>
+				<tr><td><code>data-poster</code></td><td>Poster image for a video.</td></tr>
+				<tr><td><code>data-download</code></td><td>Download URL, or <code>false</code> to hide the button for this link.</td></tr>
+			</tbody>
+		</table></div>
+
+		<h3 id="items">Items</h3>
+		<div class="table-wrap"><table>
+			<thead><tr><th>Field</th><th>Description</th></tr></thead>
+			<tbody>
+				<tr><td><code>src</code></td><td>Image URL, video file URL, YouTube or Vimeo URL. The type is detected from it.</td></tr>
+				<tr><td><code>type</code></td><td>Optional: <code>image</code>, <code>video</code>, <code>youtube</code> or <code>vimeo</code>.</td></tr>
+				<tr><td><code>sources</code></td><td>Video files as <code>[{ src, type }]</code>, to offer several formats.</td></tr>
+				<tr><td><code>thumb</code></td><td>Thumbnail for the strip. Defaults to <code>poster</code>, and for YouTube to the video's thumbnail.</td></tr>
+				<tr><td><code>poster</code></td><td>Poster image for videos.</td></tr>
+				<tr><td><code>alt</code></td><td>Alternative text for the image.</td></tr>
+				<tr><td><code>caption</code></td><td>Caption. Inserted as HTML unless <code>htmlCaptions</code> is <code>false</code>.</td></tr>
+				<tr><td><code>srcset</code></td><td>Responsive image candidates, e.g. <code>'photo-1024.jpg 1024w, photo-2048.jpg 2048w'</code>.</td></tr>
+				<tr><td><code>download</code></td><td>Download URL (e.g. the original file), or <code>false</code> to hide the button for this item.</td></tr>
+			</tbody>
+		</table></div>
+
+		<h3 id="videos">Videos</h3>
+		<p>Video files play in the browser's own player. Give several formats with <code>sources</code>:</p>
+		<div class="code" data-lang="js"><pre><code>{
+	type: 'video',
+	sources: [
+		{ src: 'clip.webm', type: 'video/webm' },
+		{ src: 'clip.mp4', type: 'video/mp4' },
+	],
+	poster: 'clip.jpg',
+}</code></pre></div>
+		<p>YouTube (<code>youtube.com/watch?v=</code>, <code>youtu.be/</code>, <code>/shorts/</code>, <code>/embed/</code>) and Vimeo links show a poster with a play button. The player is loaded when the visitor presses it, and stops when they move to another slide or close the gallery. Add player parameters with <code>youtubeParams</code> and <code>vimeoParams</code>.</p>
+
+		<h3 id="options">Options</h3>
+		<p>The defaults are in <code>Foldbox.defaults</code>; change them there to affect every gallery on the page.</p>
+		<div class="table-wrap"><table>
+			<thead><tr><th>Option</th><th>Default</th><th>Description</th></tr></thead>
+			<tbody>
+				<tr><td><code>index</code></td><td><code>0</code></td><td>Item to start with.</td></tr>
+				<tr><td><code>loop</code></td><td><code>true</code></td><td>Wrap from the last item to the first.</td></tr>
+				<tr><td><code>animation</code></td><td><code>'slide'</code></td><td><code>'slide'</code> or <code>'fade'</code>.</td></tr>
+				<tr><td><code>speed</code></td><td><code>400</code></td><td>Transition time in ms.</td></tr>
+				<tr><td><code>origin</code></td><td><code>null</code></td><td>Element the gallery grows out of.</td></tr>
+				<tr><td><code>theme</code></td><td><code>'dark'</code></td><td><code>'dark'</code>, <code>'light'</code>, or <code>'auto'</code> to follow the visitor's system setting.</td></tr>
+				<tr><td><code>className</code></td><td><code>''</code></td><td>Extra class on the lightbox, e.g. for <a href="#custom-theme">your own theme</a>.</td></tr>
+				<tr><td><code>counter</code></td><td><code>true</code></td><td>Show "1 / 5".</td></tr>
+				<tr><td><code>captions</code></td><td><code>true</code></td><td>Show captions.</td></tr>
+				<tr><td><code>htmlCaptions</code></td><td><code>true</code></td><td>Insert captions as HTML. <code>false</code> shows plain text. <code>bind()</code> defaults to <code>false</code>.</td></tr>
+				<tr><td><code>thumbnails</code></td><td><code>true</code></td><td>Show the thumbnail strip.</td></tr>
+				<tr><td><code>hideThumbsInFullscreen</code></td><td><code>false</code></td><td>Hide the strip in fullscreen.</td></tr>
+				<tr><td><code>zoom</code></td><td><code>true</code></td><td>Allow zooming images.</td></tr>
+				<tr><td><code>maxZoom</code></td><td><code>3</code></td><td>Largest zoom factor.</td></tr>
+				<tr><td><code>fullscreen</code></td><td><code>true</code></td><td>Show the fullscreen button.</td></tr>
+				<tr><td><code>slideshow</code></td><td><code>true</code></td><td>Show the slideshow button.</td></tr>
+				<tr><td><code>slideshowAutostart</code></td><td><code>false</code></td><td>Start the slideshow on open.</td></tr>
+				<tr><td><code>slideshowInterval</code></td><td><code>5000</code></td><td>Time per slide in ms.</td></tr>
+				<tr><td><code>download</code></td><td><code>false</code></td><td>Show the download button. Only <code>http(s)</code> and <code>blob:</code> URLs are used. Browsers download only files from the page's own domain; files on another domain open in a new tab.</td></tr>
+				<tr><td><code>keyboard</code></td><td><code>true</code></td><td>Arrow, Home and End navigation. Escape always closes.</td></tr>
+				<tr><td><code>swipe</code></td><td><code>true</code></td><td>Swipe between slides.</td></tr>
+				<tr><td><code>swipeToClose</code></td><td><code>true</code></td><td>Swipe down to close.</td></tr>
+				<tr><td><code>closeOnBackdrop</code></td><td><code>true</code></td><td>Click outside the media to close.</td></tr>
+				<tr><td><code>youtubeNoCookie</code></td><td><code>true</code></td><td>Use <code>youtube-nocookie.com</code>.</td></tr>
+				<tr><td><code>youtubeThumbnails</code></td><td><code>true</code></td><td>Load YouTube thumbnails from <code>i.ytimg.com</code> for items without <code>thumb</code> or <code>poster</code>.</td></tr>
+				<tr><td><code>youtubeParams</code></td><td><code>{ rel: 0 }</code></td><td>Extra YouTube player parameters.</td></tr>
+				<tr><td><code>vimeoParams</code></td><td><code>{}</code></td><td>Extra Vimeo player parameters.</td></tr>
+				<tr><td><code>labels</code></td><td>English</td><td>Texts for <a href="#translation">translation</a>.</td></tr>
+				<tr><td><code>onOpen</code>, <code>onChange</code>, <code>onClose</code></td><td><code>null</code></td><td><a href="#callbacks">Callbacks</a>.</td></tr>
+			</tbody>
+		</table></div>
+
+		<h3 id="methods">Methods</h3>
+		<div class="table-wrap"><table>
+			<thead><tr><th>Method</th><th>Description</th></tr></thead>
+			<tbody>
+				<tr><td><code>Foldbox.open( items, options )</code></td><td>Open a gallery. Returns the lightbox object.</td></tr>
+				<tr><td><code>Foldbox.bind( container, options )</code></td><td>Open links inside the container in a gallery. Returns an unbind function.</td></tr>
+				<tr><td><code>Foldbox.grid( element, options )</code></td><td>Make a <a href="#grid">filterable grid</a>.</td></tr>
+				<tr><td><code>Foldbox.close()</code></td><td>Close whichever gallery is open.</td></tr>
+				<tr><td><code>Foldbox.defaults</code></td><td>Default options, shared by every gallery.</td></tr>
+				<tr><td><code>Foldbox.version</code></td><td>The version string, e.g. <code>'<span data-version></span>'</code>.</td></tr>
+			</tbody>
+		</table></div>
+		<p>The lightbox object returned by <code>Foldbox.open()</code>:</p>
+		<div class="table-wrap"><table>
+			<thead><tr><th>Method</th><th>Description</th></tr></thead>
+			<tbody>
+				<tr><td><code>next()</code>, <code>prev()</code></td><td>Go to the next or previous item.</td></tr>
+				<tr><td><code>goTo( index )</code></td><td>Go to an item by its position (from 0).</td></tr>
+				<tr><td><code>play()</code>, <code>pause()</code></td><td>Start or stop the slideshow.</td></tr>
+				<tr><td><code>toggleZoom()</code></td><td>Zoom the current image in or out.</td></tr>
+				<tr><td><code>toggleFullscreen()</code></td><td>Enter or leave fullscreen.</td></tr>
+				<tr><td><code>close()</code></td><td>Close the gallery.</td></tr>
+			</tbody>
+		</table></div>
+		<p>Only one gallery is open at a time; opening another closes the first.</p>
+
+		<h3 id="callbacks">Callbacks</h3>
+		<p><code>onOpen</code>, <code>onChange</code> and <code>onClose</code> receive the current index, the current item and the lightbox object.</p>
+		<div class="code" data-lang="js"><pre><code>Foldbox.open( items, {
+	onChange( index, item, lightbox ) {
+		history.replaceState( null, '', '#photo-' + ( index + 1 ) );
+	},
+	onClose() {
+		history.replaceState( null, '', location.pathname );
+	},
+} );</code></pre></div>
+
+		<h3 id="keyboard">Keyboard and touch</h3>
+		<div class="table-wrap"><table>
+			<thead><tr><th>Input</th><th>Action</th></tr></thead>
+			<tbody>
+				<tr><td><kbd>←</kbd> <kbd>→</kbd></td><td>Previous / next item</td></tr>
+				<tr><td><kbd>Home</kbd> <kbd>End</kbd></td><td>First / last item</td></tr>
+				<tr><td><kbd>Esc</kbd></td><td>Close</td></tr>
+				<tr><td><kbd>Tab</kbd></td><td>Move between controls; focus stays inside the gallery</td></tr>
+				<tr><td>Double-click, pinch, <kbd>Ctrl</kbd> + wheel</td><td>Zoom; drag to pan</td></tr>
+				<tr><td>Swipe left / right</td><td>Previous / next item</td></tr>
+				<tr><td>Swipe down</td><td>Close</td></tr>
+			</tbody>
+		</table></div>
+		<p>When a video has focus, the arrow keys seek in the video instead.</p>
+
+		<h2 id="themes">Themes and styling</h2>
+		<p>The gallery is dark by default. Choose a built-in theme with the <code>theme</code> option:</p>
+		<div class="code" data-lang="js"><pre><code>Foldbox.open( items, { theme: 'light' } );     // 'dark' (default), 'light' or 'auto'
+Foldbox.bind( '#gallery', { theme: 'auto' } ); // follows the visitor's light/dark setting</code></pre></div>
+
+		<h3 id="css-properties">CSS properties</h3>
+		<p>Change colours and sizes with CSS custom properties on <code>.foldbox</code>:</p>
+		<div class="code" data-lang="css"><pre><code>.foldbox {
+	--foldbox-bg: rgba(0, 0, 0, 0.9);
+	--foldbox-accent: #ffcc00;
+	--foldbox-thumb-size: 72px;
+	--foldbox-top: 32px; /* leave room for a fixed header */
+	--foldbox-z: 99999;
+}</code></pre></div>
+		<div class="table-wrap"><table>
+			<thead><tr><th>Property</th><th>Used for</th></tr></thead>
+			<tbody>
+				<tr><td><code>--foldbox-bg</code></td><td>Backdrop</td></tr>
+				<tr><td><code>--foldbox-color</code></td><td>Text and icons</td></tr>
+				<tr><td><code>--foldbox-muted</code></td><td>Counter, captions, error text</td></tr>
+				<tr><td><code>--foldbox-accent</code></td><td>Focus ring, slideshow progress, active thumbnail, spinner</td></tr>
+				<tr><td><code>--foldbox-btn-bg</code>, <code>--foldbox-btn-hover</code></td><td>Toolbar and arrow buttons</td></tr>
+				<tr><td><code>--foldbox-thumb-bg</code></td><td>Thumbnail placeholder</td></tr>
+				<tr><td><code>--foldbox-spinner-track</code></td><td>Loading spinner track</td></tr>
+				<tr><td><code>--foldbox-thumb-size</code></td><td>Thumbnail size</td></tr>
+				<tr><td><code>--foldbox-top</code></td><td>Space above the gallery, e.g. for a fixed admin bar or header</td></tr>
+				<tr><td><code>--foldbox-z</code></td><td>Stacking order (z-index)</td></tr>
+			</tbody>
+		</table></div>
+
+		<h3 id="custom-theme">Your own theme</h3>
+		<p>Put the properties on a class and pass it with <code>className</code>:</p>
+		<div class="code" data-lang="css"><pre><code>.foldbox.my-sepia {
+	--foldbox-bg: rgba(40, 30, 20, 0.96);
+	--foldbox-color: #f4e9d8;
+	--foldbox-muted: rgba(244, 233, 216, 0.7);
+	--foldbox-accent: #e0b872;
+}</code></pre></div>
+		<div class="code" data-lang="js"><pre><code>Foldbox.open( items, { className: 'my-sepia' } );</code></pre></div>
+		<p><button type="button" class="btn" id="sepia-demo">Try the sepia theme</button></p>
+
+		<h2 id="translation">Translation</h2>
+		<p>Every text in the gallery comes from <code>labels</code>. Pass only the ones you want to change; <code>%1</code> and <code>%2</code> in <code>counter</code> are the current position and the total.</p>
+		<div class="code" data-lang="js"><pre><code>Foldbox.open( items, {
+	labels: {
+		dialog: 'Galerie',
+		close: 'Fermer',
+		prev: 'Précédent',
+		next: 'Suivant',
+		zoomIn: 'Zoom avant',
+		zoomOut: 'Zoom arrière',
+		fullscreen: 'Plein écran',
+		exitFullscreen: 'Quitter le plein écran',
+		play: 'Lancer le diaporama',
+		pause: 'Mettre en pause',
+		download: 'Télécharger',
+		playVideo: 'Lire la vidéo',
+		counter: '%1 sur %2',
+		error: 'Impossible de charger cet élément.',
+	},
+} );</code></pre></div>
+		<p>The gallery works on right-to-left pages too.</p>
+
+		<h2 id="grid">Filterable grid</h2>
+		<p><code>Foldbox.grid()</code> animates a grid between filters: items that stay glide to their new place, hidden items fade and shrink, new ones grow in. It works with any layout: CSS grid, flex or floats.</p>
+		<div class="code" data-lang="js"><pre><code>const grid = Foldbox.grid( document.querySelector( '.grid' ), { itemSelector: ':scope &gt; .card' } );
+
+grid.filter( '.weddings' );                              // CSS selector
+grid.filter( '*' );                                      // everything
+grid.filter( ( item ) =&gt; item.dataset.year === '2026' ); // function
+grid.filter( '.portraits', true );                       // no animation</code></pre></div>
+		<div class="note"><p>Hidden items get the <code>hidden</code> attribute, so make sure your CSS hides them: <code>.card[hidden] { display: none; }</code></p></div>
+		<div class="table-wrap"><table>
+			<thead><tr><th>Option</th><th>Default</th><th>Description</th></tr></thead>
+			<tbody>
+				<tr><td><code>itemSelector</code></td><td><code>':scope &gt; *'</code></td><td>Which elements are items.</td></tr>
+				<tr><td><code>duration</code></td><td><code>400</code></td><td>Animation time in ms.</td></tr>
+				<tr><td><code>easing</code></td><td><code>'ease'</code></td><td>CSS easing.</td></tr>
+			</tbody>
+		</table></div>
+		<p>A typical setup with filter buttons:</p>
+		<div class="code" data-lang="js"><pre><code>const grid = Foldbox.grid( document.querySelector( '.grid' ) );
+document.querySelectorAll( '[data-filter]' ).forEach( ( button ) =&gt; {
+	button.addEventListener( 'click', () =&gt; grid.filter( button.dataset.filter ) );
+} );</code></pre></div>
+
+		<h2 id="security">Captions and security</h2>
+		<p>With <code>Foldbox.open()</code>, captions are inserted as HTML so you can add headings and links. Escape anything that comes from users, or set <code>htmlCaptions: false</code> to show captions as plain text.</p>
+		<p><code>Foldbox.bind()</code> reads captions from page markup that other people (such as post authors) may control, so it shows them as plain text. Pass <code>htmlCaptions: true</code> only if you trust everyone who can edit that markup. Download links accept only <code>http(s)</code> and <code>blob:</code> URLs.</p>
+
+		<h2 id="privacy">Privacy</h2>
+		<ul>
+			<li>YouTube and Vimeo players load only when the visitor presses play. Until then, no request goes to YouTube or Vimeo, except for thumbnails below.</li>
+			<li>YouTube uses <code>youtube-nocookie.com</code> (turn off with <code>youtubeNoCookie: false</code>).</li>
+			<li>YouTube items without your own <code>thumb</code> or <code>poster</code> load their thumbnail from <code>i.ytimg.com</code> when the gallery opens. Set <code>youtubeThumbnails: false</code>, or give your own images, to avoid that.</li>
+		</ul>
+
+		<h2 id="accessibility">Accessibility</h2>
+		<ul>
+			<li>The gallery is a modal dialog (<code>role="dialog"</code>, <code>aria-modal</code>) with a label.</li>
+			<li>Focus moves into the gallery, stays there while it is open, and returns to the element that opened it.</li>
+			<li>All controls are buttons with labels; slides that are not visible are hidden from screen readers.</li>
+			<li>Keyboard navigation works without a mouse.</li>
+			<li>Animations are turned off for visitors who ask for reduced motion.</li>
+		</ul>
+
+		<h2 id="browsers">Browser support</h2>
+		<p>Current versions of Chrome, Edge, Firefox and Safari, on desktop and mobile.</p>
+
+		<h2 id="contributing">Contributing</h2>
+		<p>Bug reports, ideas and pull requests are welcome on <a href="https://github.com/wpgenius/foldbox">GitHub</a>.</p>
+		<div class="code" data-lang="bash"><pre><code>git clone https://github.com/wpgenius/foldbox.git
+cd foldbox
+npm install
+npm run build</code></pre></div>
+		<ul>
+			<li>Open <code>demo/index.html</code> through a local web server to try your change.</li>
+			<li>In a pull request, change <code>src/</code> (and docs) only. Don't commit <code>dist/</code> or <code>CHANGELOG.md</code>, and don't change version numbers: the release workflow does that when the PR is merged.</li>
+			<li>Link the PR to its issue (<code>Fixes #12</code>); the changelog lists the issues closed in each release.</li>
+			<li>Releases are patch versions by default. Label the PR <code>release: minor</code> or <code>release: major</code> for a bigger bump.</li>
+		</ul>
+		<p>Foldbox is released under the <a href="https://github.com/wpgenius/foldbox/blob/main/LICENSE">MIT licence</a>.</p>
+	</main>
+</div>
+
+<footer class="site-footer">
+	<div class="wrap">
+		<span>Foldbox <span data-version="v"></span> · MIT licence · © WPGenius</span>
+		<nav aria-label="Footer">
+			<a href="./">Home</a>
+			<a href="https://github.com/wpgenius/foldbox">GitHub</a>
+			<a href="https://github.com/wpgenius/foldbox/releases">Releases</a>
+			<a href="https://github.com/wpgenius/foldbox/blob/main/CHANGELOG.md">Changelog</a>
+		</nav>
+	</div>
+</footer>
+
+<script src="dist/foldbox.min.js"></script>
+<script src="assets/site.js"></script>
+<script>
+	( function () {
+		const btn = document.getElementById( 'sepia-demo' );
+		const pic = function ( id ) {
+			return { src: 'https://picsum.photos/id/' + id + '/1600/1067', thumb: 'https://picsum.photos/id/' + id + '/200/200' };
+		};
+		btn.addEventListener( 'click', function () {
+			Foldbox.open( [ pic( 1015 ), pic( 1016 ), pic( 1018 ) ], { className: 'my-sepia', origin: btn } );
+		} );
+	} )();
+</script>
+<style>
+	.foldbox.my-sepia {
+		--foldbox-bg: rgba(40, 30, 20, 0.96);
+		--foldbox-color: #f4e9d8;
+		--foldbox-muted: rgba(244, 233, 216, 0.7);
+		--foldbox-accent: #e0b872;
+	}
+</style>
+</body>
+</html>

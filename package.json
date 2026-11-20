@@ -9,7 +9,8 @@
 		"dist"
 	],
 	"scripts": {
-		"build": "esbuild src/foldbox.js --minify --legal-comments=inline --target=es2018 --outfile=dist/foldbox.min.js && esbuild src/foldbox.css --minify --legal-comments=inline --outfile=dist/foldbox.min.css"
+		"build": "esbuild src/foldbox.js --minify --legal-comments=inline --target=es2018 --outfile=dist/foldbox.min.js && esbuild src/foldbox.css --minify --legal-comments=inline --outfile=dist/foldbox.min.css",
+		"site": "rm -rf _site && mkdir _site && cp -R site/. _site/ && cp -R dist _site/dist && touch _site/.nojekyll"
 	},
 	"keywords": [
 		"lightbox",
@@ -29,5 +30,6 @@
 	"license": "MIT",
 	"devDependencies": {
 		"esbuild": "0.24.0"
-	}
+	},
+	"homepage": "https://wpgenius.github.io/foldbox/"
 }

@@ -1,47 +1,57 @@
 # Foldbox
 
-A lightweight lightbox and filterable grid for photos and videos. No dependencies, no build step needed, MIT licensed.
+[![Latest release](https://img.shields.io/github/v/release/wpgenius/foldbox)](https://github.com/wpgenius/foldbox/releases/latest)
+[![CI](https://github.com/wpgenius/foldbox/actions/workflows/ci.yml/badge.svg)](https://github.com/wpgenius/foldbox/actions/workflows/ci.yml)
+[![MIT licence](https://img.shields.io/github/license/wpgenius/foldbox)](LICENSE)
 
-- **Lightbox:** images, MP4/WebM, YouTube and Vimeo in one gallery.
+A small, dependency-free **lightbox** and **filterable grid** for photos and videos. The gallery unfolds from the thumbnail you click; the grid animates between category filters.
+
+**[Live demos](https://wpgenius.github.io/foldbox/)** · **[Documentation](https://wpgenius.github.io/foldbox/docs.html)** · **[Releases](https://github.com/wpgenius/foldbox/releases)**
+
+## Features
+
+- **Images and video in one gallery:** JPG, PNG and WebP (with `srcset`), MP4 and WebM, YouTube and Vimeo.
 - **Thumbnail strip**, captions and a counter.
 - **Zoom:** double-click, pinch, trackpad pinch or the zoom button; drag to pan.
 - **Fullscreen**, **slideshow** with a progress bar, and an optional **download** button.
 - **Touch:** swipe between slides, swipe down to close.
-- **Opening effect:** the gallery grows out of the thumbnail you clicked.
+- **Themes:** dark, light or automatic, plus CSS custom properties for your own look.
 - **Accessible:** dialog semantics, focus trap, keyboard (arrows, Home, End, Esc), respects reduced motion.
-- **Privacy friendly:** YouTube and Vimeo players load only when the visitor presses play (YouTube uses `youtube-nocookie.com`). YouTube thumbnails without your own `thumb` or `poster` still come from `i.ytimg.com` when the gallery opens; set `youtubeThumbnails: false` to stop that.
-- **Filterable grid:** animate a grid between category filters (cards glide, fade and scale) with any CSS layout.
+- **Privacy friendly:** YouTube and Vimeo players load only when the visitor presses play; YouTube uses `youtube-nocookie.com`.
+- **Filterable grid:** cards glide, fade and scale between filters, with any CSS layout.
+- **Translatable** and works on right-to-left pages.
 
-About 10 KB minified and gzipped (JS + CSS).
+No dependencies, about 11 KB minified and gzipped (JS + CSS).
 
 ## Install
 
-Download `dist/foldbox.min.js` and `dist/foldbox.min.css` (or the readable files in `src/`) and include them:
+From the jsDelivr CDN:
 
 ```html
-<link rel="stylesheet" href="foldbox.min.css">
-<script src="foldbox.min.js"></script>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/wpgenius/foldbox@1/dist/foldbox.min.css">
+<script src="https://cdn.jsdelivr.net/gh/wpgenius/foldbox@1/dist/foldbox.min.js"></script>
 ```
 
-Foldbox also works as a CommonJS or AMD module.
+`@1` follows the latest 1.x release; pin an exact version (such as `@1.1.1`) in production. Or download `foldbox.min.js` and `foldbox.min.css` from the [latest release](https://github.com/wpgenius/foldbox/releases/latest). Foldbox also works as a CommonJS or AMD module.
 
-## Lightbox
+## Quick start
 
-### Open from JavaScript
+### Open a gallery from JavaScript
 
 ```js
-Foldbox.open(
-	[
-		{ src: 'photo-1.jpg', thumb: 'photo-1-thumb.jpg', alt: 'Beach', caption: '<h4>Beach</h4><p>Summer 2026</p>' },
-		{ src: 'clip.mp4', poster: 'clip.jpg', thumb: 'clip-thumb.jpg' },
-		{ src: 'https://www.youtube.com/watch?v=aqz-KE-bpKQ' },
-		{ src: 'https://vimeo.com/76979871', thumb: 'vimeo-thumb.jpg' },
-	],
-	{ index: 0, origin: document.querySelector( '#cover' ) }
-);
+const items = [
+	{ src: 'beach.jpg', thumb: 'beach-thumb.jpg', alt: 'Beach', caption: 'Summer 2026' },
+	{ src: 'clip.mp4', poster: 'clip.jpg' },
+	{ src: 'https://www.youtube.com/watch?v=aqz-KE-bpKQ' },
+	{ src: 'https://vimeo.com/76979871', thumb: 'vimeo-thumb.jpg' },
+];
+
+button.addEventListener( 'click', () => {
+	Foldbox.open( items, { origin: button, theme: 'auto' } );
+} );
 ```
 
-### Bind links
+### Turn links into a gallery
 
 ```html
 <div id="gallery">
@@ -54,142 +64,71 @@ Foldbox.open(
 </script>
 ```
 
-Link attributes: `data-thumb`, `data-caption`, `data-type`, `data-poster`, `data-download` (a URL, or `false` to hide the button for that link).
-
-`bind()` shows `data-caption` as plain text, because it comes from page markup that other people (such as post authors) may control. Pass `htmlCaptions: true` only if you trust everyone who can edit that markup.
-
-### Items
-
-| Field | Description |
-|---|---|
-| `src` | Image URL, video file URL, YouTube or Vimeo URL. The type is detected from it. |
-| `type` | Optional: `image`, `video`, `youtube` or `vimeo`. |
-| `sources` | Video files as `[{ src, type }]`, for several formats. |
-| `thumb` | Thumbnail for the strip. Defaults to `poster`, and for YouTube to the video's thumbnail. |
-| `poster` | Poster image for videos. |
-| `alt` | Alternative text. |
-| `caption` | Caption. Inserted as HTML unless `htmlCaptions` is `false`, so escape anything that comes from users. |
-| `srcset` | Optional responsive image candidates. |
-| `download` | Download URL, or `false` to hide the button for this item. |
-
-### Options
-
-| Option | Default | Description |
-|---|---|---|
-| `index` | `0` | Item to start with. |
-| `loop` | `true` | Wrap from the last item to the first. |
-| `animation` | `'slide'` | `'slide'` or `'fade'`. |
-| `speed` | `400` | Transition time in ms. |
-| `origin` | `null` | Element the gallery grows out of. |
-| `theme` | `'dark'` | `'dark'`, `'light'`, or `'auto'` to follow the visitor's system setting. See [Themes](#themes). |
-| `className` | `''` | Extra class on the lightbox. |
-| `counter` | `true` | Show "1 / 5". |
-| `captions` | `true` | Show captions. |
-| `htmlCaptions` | `true` | Insert captions as HTML. `false` shows them as plain text. `bind()` defaults to `false`. |
-| `thumbnails` | `true` | Show the thumbnail strip. |
-| `hideThumbsInFullscreen` | `false` | Hide the strip in fullscreen. |
-| `zoom` | `true` | Allow zooming images. |
-| `maxZoom` | `3` | Largest zoom factor. |
-| `fullscreen` | `true` | Show the fullscreen button. |
-| `slideshow` | `true` | Show the slideshow button. |
-| `slideshowAutostart` | `false` | Start the slideshow on open. |
-| `slideshowInterval` | `5000` | Time per slide in ms. |
-| `download` | `false` | Show the download button. Only `http(s)` and `blob:` URLs are used. Browsers only download files from the page's own domain; files on another domain (such as a CDN) open in a new tab. |
-| `keyboard` | `true` | Arrow, Home and End navigation. Escape always closes. |
-| `swipe` | `true` | Swipe between slides. |
-| `swipeToClose` | `true` | Swipe down to close. |
-| `closeOnBackdrop` | `true` | Click outside the media to close. |
-| `youtubeNoCookie` | `true` | Use `youtube-nocookie.com`. |
-| `youtubeThumbnails` | `true` | Load YouTube thumbnails from `i.ytimg.com` for items without `thumb` or `poster`. |
-| `youtubeParams` | `{ rel: 0 }` | Extra YouTube player parameters. |
-| `vimeoParams` | `{}` | Extra Vimeo player parameters. |
-| `labels` | English | Texts for translation, e.g. `{ close: 'Fermer', counter: '%1 sur %2' }`. |
-| `onOpen`, `onChange`, `onClose` | `null` | Callbacks: `( index, item, lightbox )`. |
-
-The object returned by `Foldbox.open()` has `next()`, `prev()`, `goTo( i )`, `play()`, `pause()`, `toggleZoom()`, `toggleFullscreen()` and `close()`. `Foldbox.close()` closes whichever gallery is open.
-
-### Themes
-
-The gallery is dark by default. Pick another built-in theme with the `theme` option:
-
-```js
-Foldbox.open( items, { theme: 'light' } ); // 'dark' (default), 'light', or 'auto'
-Foldbox.bind( '#gallery', { theme: 'auto' } ); // follows the visitor's light/dark system setting
-```
-
-### Styling
-
-Change the look, or make your own theme, with CSS custom properties on `.foldbox`:
-
-```css
-.foldbox {
-	--foldbox-bg: rgba(0, 0, 0, 0.9);
-	--foldbox-accent: #ffcc00;
-	--foldbox-thumb-size: 72px;
-	--foldbox-top: 32px; /* e.g. leave room for a fixed header */
-	--foldbox-z: 99999;
-}
-```
-
-| Property | Used for |
-|---|---|
-| `--foldbox-bg` | Backdrop |
-| `--foldbox-color` | Text and icons |
-| `--foldbox-muted` | Counter, captions, error text |
-| `--foldbox-accent` | Focus ring, slideshow progress, active thumbnail, spinner |
-| `--foldbox-btn-bg`, `--foldbox-btn-hover` | Toolbar and arrow buttons |
-| `--foldbox-thumb-bg` | Thumbnail placeholder |
-| `--foldbox-spinner-track` | Loading spinner track |
-
-For a named theme of your own, put the properties on a class and pass it with `className`:
-
-```css
-.foldbox.my-sepia {
-	--foldbox-bg: rgba(40, 30, 20, 0.96);
-	--foldbox-color: #f4e9d8;
-	--foldbox-muted: rgba(244, 233, 216, 0.7);
-	--foldbox-accent: #e0b872;
-}
-```
-
-```js
-Foldbox.open( items, { className: 'my-sepia' } );
-```
-
-## Filterable grid
+### Filter a grid
 
 ```js
 const grid = Foldbox.grid( document.querySelector( '.grid' ), { itemSelector: ':scope > .card' } );
 
 grid.filter( '.weddings' ); // CSS selector
 grid.filter( '*' );         // everything
-grid.filter( ( item ) => item.dataset.year === '2026' ); // function
+grid.filter( ( item ) => item.dataset.year === '2026' );
 ```
 
-Hidden items get the `hidden` attribute, so make sure your CSS hides them (`.card[hidden] { display: none; }`). The grid can use any layout: flex, CSS grid or floats.
+Hidden items get the `hidden` attribute, so hide them in your CSS: `.card[hidden] { display: none; }`.
 
-Options: `itemSelector` (default `:scope > *`), `duration` (`400`), `easing` (`'ease'`).
+## API at a glance
+
+| | |
+|---|---|
+| `Foldbox.open( items, options )` | Open a gallery. Returns an object with `next()`, `prev()`, `goTo( i )`, `play()`, `pause()`, `toggleZoom()`, `toggleFullscreen()` and `close()`. |
+| `Foldbox.bind( container, options )` | Open the links inside a container in a gallery. Returns an unbind function. |
+| `Foldbox.grid( element, options )` | Make a filterable grid with `filter( selector \| fn, instant )`. |
+| `Foldbox.close()` | Close the open gallery. |
+| `Foldbox.defaults` | Default options for every gallery. |
+
+Commonly used options: `index`, `loop`, `animation` (`'slide'` / `'fade'`), `theme` (`'dark'` / `'light'` / `'auto'`), `thumbnails`, `zoom`, `fullscreen`, `slideshow`, `download`, `captions`, `labels` and the `onOpen` / `onChange` / `onClose` callbacks.
+
+The [documentation](https://wpgenius.github.io/foldbox/docs.html) covers every item field, option, CSS property and translation label.
+
+## Styling
+
+```css
+.foldbox {
+	--foldbox-bg: rgba(0, 0, 0, 0.9);
+	--foldbox-accent: #ffcc00;
+	--foldbox-top: 32px; /* leave room for a fixed header */
+}
+```
+
+See [Themes and styling](https://wpgenius.github.io/foldbox/docs.html#themes) for all properties and how to make your own theme.
+
+## Captions and security
+
+`Foldbox.open()` inserts captions as HTML, so escape anything that comes from users (or pass `htmlCaptions: false`). `Foldbox.bind()` shows captions as plain text by default, because they come from page markup.
 
 ## Browser support
 
-Current versions of Chrome, Edge, Firefox and Safari (desktop and mobile).
+Current versions of Chrome, Edge, Firefox and Safari, on desktop and mobile.
 
-## Development
+## Contributing
+
+Issues and pull requests are welcome.
 
 ```bash
 npm install
-npm run build
+npm run build   # dist/foldbox.min.js and dist/foldbox.min.css
+npm run site    # assemble the website into _site/
 ```
 
-Open `demo/index.html` through a local web server to try it.
+Open `demo/index.html` (development demo, uses `src/`) or `_site/index.html` (the website) through a local web server.
 
-### Releases
-
-Releases are automatic. When a change to `src/` is merged into `main`, the release workflow bumps the version, rebuilds `dist/`, writes the `CHANGELOG.md` entry and publishes a GitHub release with the minified files.
-
-- **In a PR, change `src/` (and docs) only.** Don't commit `dist/` or `CHANGELOG.md`, and don't change version numbers; the release does that. CI fails if a PR touches `dist/` or `CHANGELOG.md`, so open PRs never conflict with a release.
-- **Changelog:** one line per issue closed since the previous release, so link your PR to its issue (`Fixes #12`).
+- **In a PR, change `src/`, `site/` and docs only.** Don't commit `dist/` or `CHANGELOG.md`, and don't change version numbers; the release workflow does that. CI fails if a PR touches `dist/` or `CHANGELOG.md`.
+- **Link your PR to its issue** (`Fixes #12`): the changelog lists one line per issue closed since the previous release.
 - **Version:** patch by default. Label the PR `release: minor` or `release: major` for a bigger bump.
+
+### Releases and website
+
+Releases are automatic. When a change to `src/` is merged into `main`, the release workflow bumps the version, rebuilds `dist/`, writes the `CHANGELOG.md` entry and publishes a GitHub release with the minified files. The website in `site/` is published to GitHub Pages when it changes and after every release, so the demos always use the latest version.
 
 ## Licence
 
