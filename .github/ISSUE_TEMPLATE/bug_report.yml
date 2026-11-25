@@ -1,0 +1,49 @@
+name: Bug report
+description: Something in Foldbox doesn't work as it should.
+labels: [bug]
+body:
+  - type: textarea
+    id: what
+    attributes:
+      label: What happened?
+      description: What did you do, what did you expect, and what happened instead?
+    validations:
+      required: true
+  - type: textarea
+    id: steps
+    attributes:
+      label: Steps to reproduce
+      description: A link to a page or a CodePen that shows the problem helps most.
+      placeholder: |
+        1. Open a gallery with these items and options: ...
+        2. Press / click / swipe ...
+        3. See ...
+    validations:
+      required: true
+  - type: textarea
+    id: code
+    attributes:
+      label: Your Foldbox code
+      description: The Foldbox.open(), bind() or grid() call, with its items and options.
+      render: js
+  - type: input
+    id: version
+    attributes:
+      label: Foldbox version
+      description: Shown by Foldbox.version in the browser console.
+      placeholder: e.g. 1.2.1
+    validations:
+      required: true
+  - type: input
+    id: browser
+    attributes:
+      label: Browser and device
+      placeholder: e.g. Safari 19 on iPhone, Chrome 140 on Windows
+    validations:
+      required: true
+  - type: textarea
+    id: console
+    attributes:
+      label: Console errors
+      description: Errors from the browser console, if any.
+      render: text

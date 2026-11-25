@@ -1,0 +1,22 @@
+version: 2
+updates:
+  # Keeps the actions used in .github/workflows up to date. Dependabot PRs need
+  # no linked issue, and they don't touch src/, so they make no release.
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: monthly
+    commit-message:
+      prefix: ci
+
+  # Dev tools from package.json (esbuild), one grouped PR a month. Foldbox has
+  # no runtime dependencies, so these never change what users install.
+  - package-ecosystem: npm
+    directory: /
+    schedule:
+      interval: monthly
+    groups:
+      npm:
+        patterns: ['*']
+    commit-message:
+      prefix: build
