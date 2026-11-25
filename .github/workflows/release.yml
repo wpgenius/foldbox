@@ -38,6 +38,10 @@ jobs:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0
+          # Pushes the release commit and tag with the "release-bot" deploy key,
+          # which the "Protect main" ruleset lets bypass the pull request rule.
+          # Without the secret it falls back to the workflow token.
+          ssh-key: ${{ secrets.RELEASE_DEPLOY_KEY }}
 
       - uses: actions/setup-node@v4
         with:
