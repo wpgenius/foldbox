@@ -1,5 +1,14 @@
 # Changelog
 
+## 1.2.1 – 2026-11-25
+
+### Changes
+- Publish to npm with trusted publishing instead of a token (#71)
+- Push release commits with the release-bot deploy key (#69)
+- Add a manual workflow to publish a release to npm (#67)
+- Show npm install and an npm badge in the README and website (#66)
+- Publish each release to npm (#64)
+
 ## 1.2.0 – 2026-11-21
 
 ### Changes
