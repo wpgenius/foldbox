@@ -24,6 +24,28 @@ jobs:
       - name: Build
         run: npm run build
 
+      # The steps below run in this job (not their own) because "build" is the
+      # check the "Protect main" ruleset requires before merging.
+      - name: Size limits
+        run: npm run size
+
+      - name: TypeScript types
+        run: npm run test:types
+
+      - name: Install Chromium for the browser tests
+        run: npx playwright install --with-deps chromium
+
+      - name: Browser tests
+        run: npm run test:e2e
+
+      - name: Upload the test traces
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-traces
+          path: test-results/
+          retention-days: 7
+
       # dist/ and CHANGELOG.md are written by the release workflow only. If a PR
       # changes them too, every release makes the open PRs conflict.
       - name: PR leaves dist/ and CHANGELOG.md to the release workflow

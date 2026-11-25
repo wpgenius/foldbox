@@ -10,16 +10,29 @@ You need Node.js 22 or later.
 git clone https://github.com/wpgenius/foldbox.git
 cd foldbox
 npm install
-npm run build   # dist/foldbox.min.js and dist/foldbox.min.css
+npm run build   # dist/foldbox.min.js, dist/foldbox.mjs and dist/foldbox.min.css
 npm run site    # assemble the website (site/ + dist/) into _site/
 ```
+
+## Tests
+
+```bash
+npx playwright install chromium   # once, downloads the test browser
+npm run build
+npm test        # TypeScript types (test/types.ts) and browser tests (test/e2e/)
+npm run size    # the built files against their size limits (test/size.mjs)
+```
+
+The browser tests open `test/fixtures/index.html` in Chromium with Playwright and check opening, navigation (buttons, keys, swipe), zoom and panning, closing, keyboard focus, a failed image, the grid and the ES module build. They use local images only. CI runs all of these on every pull request. When you change behaviour, add or update a test; when you change the public API, update `types/foldbox.d.ts` and `test/types.ts` too.
 
 | Folder | What it is |
 |---|---|
 | `src/` | The library: `foldbox.js` and `foldbox.css`. Edit these. |
 | `demo/` | A development demo that loads `src/` directly. |
 | `site/` | The website on GitHub Pages: demos and documentation. |
-| `dist/` | Minified files, written by the release workflow. Don't edit or commit. |
+| `types/` | TypeScript types for the public API. Keep them in step with `src/`. |
+| `test/` | Browser tests, type tests, the size check and their test page. |
+| `dist/` | Built files, written by the release workflow. Don't edit or commit. |
 
 Open `demo/index.html` or `_site/index.html` through a local web server (for example `npx serve`), not as a `file://` page, so the YouTube and Vimeo players load.
 
