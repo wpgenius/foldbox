@@ -74,7 +74,11 @@
 		<div class="code" data-lang="html"><pre><code>&lt;link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/wpgenius/foldbox@1/dist/foldbox.min.css"&gt;
 &lt;script src="https://cdn.jsdelivr.net/gh/wpgenius/foldbox@1/dist/foldbox.min.js"&gt;&lt;/script&gt;</code></pre></div>
 		<p><code>@1</code> follows the latest 1.x release; pin an exact version such as <code>@<span data-version></span></code> in production. Or download <code>foldbox.min.js</code> and <code>foldbox.min.css</code> from the <a href="https://github.com/wpgenius/foldbox/releases/latest">latest release</a> and host them yourself. The readable sources are in <a href="https://github.com/wpgenius/foldbox/tree/main/src"><code>src/</code></a>.</p>
-		<p>The script sets <code>window.Foldbox</code>. It is a UMD module, so CommonJS (<code>require()</code>) and AMD loaders work too.</p>
+		<p>Or install it from npm and import it in your bundle:</p>
+		<div class="code" data-lang="bash"><pre><code>npm install foldbox</code></pre></div>
+		<div class="code" data-lang="js"><pre><code>import Foldbox from 'foldbox';
+import 'foldbox/dist/foldbox.min.css';</code></pre></div>
+		<p>Loaded with a <code>&lt;script&gt;</code> tag, it sets <code>window.Foldbox</code>. It is a UMD module, so CommonJS (<code>require( 'foldbox' )</code>) and AMD loaders work too.</p>
 
 		<h2 id="lightbox">Lightbox</h2>
 

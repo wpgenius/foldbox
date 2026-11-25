@@ -1,5 +1,6 @@
 # Foldbox
 
+[![npm](https://img.shields.io/npm/v/foldbox)](https://www.npmjs.com/package/foldbox)
 [![Latest release](https://img.shields.io/github/v/release/wpgenius/foldbox)](https://github.com/wpgenius/foldbox/releases/latest)
 [![CI](https://github.com/wpgenius/foldbox/actions/workflows/ci.yml/badge.svg)](https://github.com/wpgenius/foldbox/actions/workflows/ci.yml)
 [![MIT licence](https://img.shields.io/github/license/wpgenius/foldbox)](LICENSE)
@@ -25,14 +26,25 @@ No dependencies, about 11 KB minified and gzipped (JS + CSS).
 
 ## Install
 
-From the jsDelivr CDN:
+From npm:
+
+```bash
+npm install foldbox
+```
+
+```js
+import Foldbox from 'foldbox';
+import 'foldbox/dist/foldbox.min.css';
+```
+
+Or from the jsDelivr CDN:
 
 ```html
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/wpgenius/foldbox@1/dist/foldbox.min.css">
 <script src="https://cdn.jsdelivr.net/gh/wpgenius/foldbox@1/dist/foldbox.min.js"></script>
 ```
 
-`@1` follows the latest 1.x release; pin an exact version (such as `@1.1.1`) in production. Or download `foldbox.min.js` and `foldbox.min.css` from the [latest release](https://github.com/wpgenius/foldbox/releases/latest). Foldbox also works as a CommonJS or AMD module.
+`@1` follows the latest 1.x release; pin an exact version (such as `@1.2.0`) in production. Or download `foldbox.min.js` and `foldbox.min.css` from the [latest release](https://github.com/wpgenius/foldbox/releases/latest). Foldbox is a UMD module, so `require( 'foldbox' )` and AMD loaders work too.
 
 ## Quick start
 
@@ -128,7 +140,7 @@ Open `demo/index.html` (development demo, uses `src/`) or `_site/index.html` (th
 
 ### Releases and website
 
-Releases are automatic. When a change to `src/` is merged into `main`, the release workflow bumps the version, rebuilds `dist/`, writes the `CHANGELOG.md` entry and publishes a GitHub release with the minified files. The website in `site/` is published to GitHub Pages when it changes and after every release, so the demos always use the latest version.
+Releases are automatic. When a change to `src/` is merged into `main`, the release workflow bumps the version, rebuilds `dist/`, writes the `CHANGELOG.md` entry, publishes a GitHub release with the minified files and publishes the package to npm. To publish an existing release to npm again, run the **Publish to npm** workflow with its tag. The website in `site/` is published to GitHub Pages when it changes and after every release, so the demos always use the latest version.
 
 ## Licence
 
