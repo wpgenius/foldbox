@@ -2,7 +2,8 @@ name: Release
 
 # A change to the library code (src/) on main makes a release: the version is
 # bumped, dist/ rebuilt, CHANGELOG.md updated, and a tagged GitHub release is
-# published with the minified files. Patch by default; label the merged PR
+# published with the minified files, then the package is published to npm
+# (when the NPM_TOKEN secret is set). Patch by default; label the merged PR
 # "release: minor" or "release: major" for a bigger bump.
 
 on:
@@ -22,6 +23,7 @@ permissions:
   contents: write
   pull-requests: read
   issues: read
+  id-token: write # npm provenance: links each npm version to this workflow run.
 
 concurrency:
   group: release
@@ -41,6 +43,7 @@ jobs:
         with:
           node-version: 22
           cache: npm
+          registry-url: https://registry.npmjs.org
 
       # Install scripts aren't needed for the build, and this job holds a write token.
       - run: npm ci --ignore-scripts
@@ -110,3 +113,16 @@ jobs:
             --title "Foldbox ${{ steps.release.outputs.version }}" \
             --notes-file "$notes" \
             dist/foldbox.min.js dist/foldbox.min.css
+
+      # Last, so a missing or failing npm publish never blocks the GitHub
+      # release. Without the NPM_TOKEN secret the step is skipped with a notice.
+      - name: Publish to npm
+        if: steps.sync.outputs.skip != 'true'
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+        run: |
+          if [ -z "$NODE_AUTH_TOKEN" ]; then
+            echo "::notice::NPM_TOKEN is not set; skipping the npm publish."
+            exit 0
+          fi
+          npm publish --provenance --access public --ignore-scripts
