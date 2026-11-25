@@ -5,6 +5,14 @@
 	<meta name="viewport" content="width=device-width, initial-scale=1">
 	<title>Foldbox documentation</title>
 	<meta name="description" content="How to install and use Foldbox: lightbox items, options, methods, callbacks, themes, styling, translation and the filterable grid.">
+	<meta property="og:title" content="Foldbox documentation">
+	<meta property="og:description" content="How to install and use Foldbox: items, options, methods, callbacks, themes, translation and the filterable grid.">
+	<meta property="og:type" content="website">
+	<meta property="og:image" content="https://wpgenius.github.io/foldbox/assets/social-preview.png">
+	<meta property="og:image:width" content="1280">
+	<meta property="og:image:height" content="640">
+	<meta property="og:image:alt" content="Foldbox: a small, dependency-free lightbox and filterable grid for photos and videos.">
+	<meta name="twitter:card" content="summary_large_image">
 	<link rel="icon" href="assets/logo.svg" type="image/svg+xml">
 	<link rel="stylesheet" href="dist/foldbox.min.css">
 	<link rel="stylesheet" href="assets/site.css">
@@ -78,7 +86,13 @@
 		<div class="code" data-lang="bash"><pre><code>npm install foldbox</code></pre></div>
 		<div class="code" data-lang="js"><pre><code>import Foldbox from 'foldbox';
 import 'foldbox/dist/foldbox.min.css';</code></pre></div>
-		<p>Loaded with a <code>&lt;script&gt;</code> tag, it sets <code>window.Foldbox</code>. It is a UMD module, so CommonJS (<code>require( 'foldbox' )</code>) and AMD loaders work too.</p>
+		<p><code>import</code> gets the ES module build (<code>dist/foldbox.mjs</code>). Loaded with a <code>&lt;script&gt;</code> tag, Foldbox sets <code>window.Foldbox</code>; it is a UMD module, so CommonJS (<code>require( 'foldbox' )</code>) and AMD loaders work too.</p>
+		<p>TypeScript types are included (<code>Foldbox.Options</code>, <code>Foldbox.Item</code>, <code>Foldbox.Lightbox</code> and more), so editors autocomplete options and TypeScript checks your calls:</p>
+		<div class="code" data-lang="js"><pre><code>import Foldbox from 'foldbox';
+
+const items: Foldbox.Item[] = [ { src: 'photo.jpg', caption: 'River' } ];
+const options: Foldbox.Options = { theme: 'auto', loop: false };
+Foldbox.open( items, options );</code></pre></div>
 
 		<h2 id="lightbox">Lightbox</h2>
 

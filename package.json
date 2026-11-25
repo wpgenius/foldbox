@@ -3,14 +3,39 @@
 	"version": "1.2.1",
 	"description": "Lightweight lightbox and filterable grid for photos and videos: thumbnails, zoom, fullscreen, slideshow, YouTube, Vimeo and MP4.",
 	"main": "dist/foldbox.min.js",
+	"module": "dist/foldbox.mjs",
+	"types": "types/foldbox.d.ts",
 	"style": "dist/foldbox.min.css",
+	"exports": {
+		".": {
+			"types": "./types/foldbox.d.ts",
+			"import": "./dist/foldbox.mjs",
+			"require": "./dist/foldbox.min.js",
+			"default": "./dist/foldbox.min.js"
+		},
+		"./css": "./dist/foldbox.min.css",
+		"./dist/*": "./dist/*",
+		"./src/*": "./src/*",
+		"./package.json": "./package.json"
+	},
+	"sideEffects": [
+		"*.css"
+	],
 	"files": [
 		"src",
-		"dist"
+		"dist",
+		"types"
 	],
 	"scripts": {
-		"build": "esbuild src/foldbox.js --minify --legal-comments=inline --target=es2018 --outfile=dist/foldbox.min.js && esbuild src/foldbox.css --minify --legal-comments=inline --outfile=dist/foldbox.min.css",
-		"site": "rm -rf _site && mkdir _site && cp -R site/. _site/ && cp -R dist _site/dist && touch _site/.nojekyll"
+		"build": "npm run build:js && npm run build:esm && npm run build:css",
+		"build:js": "esbuild src/foldbox.js --minify --legal-comments=inline --target=es2018 --outfile=dist/foldbox.min.js",
+		"build:esm": "esbuild src/foldbox.js --bundle --format=esm --minify --legal-comments=inline --target=es2018 --outfile=dist/foldbox.mjs",
+		"build:css": "esbuild src/foldbox.css --minify --legal-comments=inline --outfile=dist/foldbox.min.css",
+		"site": "rm -rf _site && mkdir _site && cp -R site/. _site/ && cp -R dist _site/dist && touch _site/.nojekyll",
+		"size": "node test/size.mjs",
+		"test:types": "tsc -p test/tsconfig.json",
+		"test:e2e": "playwright test",
+		"test": "npm run test:types && npm run test:e2e"
 	},
 	"keywords": [
 		"lightbox",
@@ -29,7 +54,9 @@
 	"author": "WPGenius",
 	"license": "MIT",
 	"devDependencies": {
-		"esbuild": "0.24.0"
+		"@playwright/test": "^1.65.1",
+		"esbuild": "0.24.0",
+		"typescript": "^5.9.3"
 	},
 	"homepage": "https://wpgenius.github.io/foldbox/"
 }

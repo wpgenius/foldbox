@@ -1,0 +1,15 @@
+<!doctype html>
+<html lang="en">
+<head>
+	<meta charset="utf-8">
+	<title>Foldbox ES module test page</title>
+	<link rel="stylesheet" href="/dist/foldbox.min.css">
+</head>
+<body>
+	<script type="module">
+		import Foldbox from '/dist/foldbox.mjs';
+		window.FoldboxModule = Foldbox;
+		window.leakedGlobal = typeof window.Foldbox !== 'undefined';
+	</script>
+</body>
+</html>

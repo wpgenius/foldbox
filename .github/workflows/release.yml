@@ -1,6 +1,6 @@
 name: Release
 
-# A change to the library code (src/) on main makes a release: the version is
+# A change to the library code (src/) or its types (types/) on main makes a release: the version is
 # bumped, dist/ rebuilt, CHANGELOG.md updated, and a tagged GitHub release is
 # published with the minified files, then the package is published to npm
 # through npm trusted publishing (no token). Patch by default; label the merged PR
@@ -11,6 +11,7 @@ on:
     branches: [main]
     paths:
       - 'src/**'
+      - 'types/**'
   workflow_dispatch:
     inputs:
       bump:
@@ -112,11 +113,11 @@ jobs:
           GH_TOKEN: ${{ github.token }}
         run: |
           notes="${{ steps.release.outputs.notes_file }}"
-          printf '\n**Download:** `foldbox.min.js` and `foldbox.min.css` below, or the readable files in `src/`.\n' >> "$notes"
+          printf '\n**Download:** `foldbox.min.js` (or the ES module `foldbox.mjs`) and `foldbox.min.css` below, or the readable files in `src/`.\n' >> "$notes"
           gh release create "${{ steps.release.outputs.tag }}" \
             --title "Foldbox ${{ steps.release.outputs.version }}" \
             --notes-file "$notes" \
-            dist/foldbox.min.js dist/foldbox.min.css
+            dist/foldbox.min.js dist/foldbox.mjs dist/foldbox.min.css
 
       # Last, so a failing npm publish never blocks the GitHub release (retry
       # with the "Publish to npm" workflow). npm trusted publishing: npm checks

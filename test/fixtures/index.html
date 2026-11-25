@@ -1,0 +1,36 @@
+<!doctype html>
+<html lang="en">
+<head>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<title>Foldbox test page</title>
+	<link rel="stylesheet" href="/src/foldbox.css">
+	<style>
+		body { margin: 0; padding: 24px; font-family: sans-serif; }
+		#gallery { display: flex; gap: 8px; }
+		#gallery img { width: 120px; height: 75px; display: block; }
+		#grid { display: grid; grid-template-columns: repeat(3, 100px); gap: 8px; margin-top: 24px; }
+		#grid div { height: 60px; background: #ddd; }
+	</style>
+</head>
+<body>
+	<!-- Local images only, so the tests never depend on the network. -->
+	<div id="gallery">
+		<a href="images/photo-1.svg" data-caption="Photo one"><img src="images/photo-1.svg" alt="Photo one"></a>
+		<a href="images/photo-2.svg" data-caption="Photo two"><img src="images/photo-2.svg" alt="Photo two"></a>
+		<a href="images/photo-3.svg" data-caption="Photo three"><img src="images/photo-3.svg" alt="Photo three"></a>
+	</div>
+
+	<div id="grid">
+		<div class="nature">A</div>
+		<div class="city">B</div>
+		<div class="nature">C</div>
+	</div>
+
+	<script src="/src/foldbox.js"></script>
+	<script>
+		window.unbind = Foldbox.bind( '#gallery', { animation: 'fade', speed: 50 } );
+		window.grid = Foldbox.grid( document.getElementById( 'grid' ), { duration: 50 } );
+	</script>
+</body>
+</html>

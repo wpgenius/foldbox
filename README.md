@@ -1,6 +1,11 @@
 # Foldbox
 
 [![npm](https://img.shields.io/npm/v/foldbox)](https://www.npmjs.com/package/foldbox)
+[![npm downloads](https://img.shields.io/npm/dm/foldbox)](https://www.npmjs.com/package/foldbox)
+[![jsDelivr hits](https://img.shields.io/jsdelivr/gh/hm/wpgenius/foldbox)](https://www.jsdelivr.com/package/gh/wpgenius/foldbox)
+[![Minified and gzipped size](https://img.shields.io/bundlejs/size/foldbox)](https://bundlejs.com/?q=foldbox)
+[![Zero dependencies](https://img.shields.io/badge/dependencies-0-brightgreen)](package.json)
+[![TypeScript types included](https://img.shields.io/npm/types/foldbox)](types/foldbox.d.ts)
 [![Latest release](https://img.shields.io/github/v/release/wpgenius/foldbox)](https://github.com/wpgenius/foldbox/releases/latest)
 [![CI](https://github.com/wpgenius/foldbox/actions/workflows/ci.yml/badge.svg)](https://github.com/wpgenius/foldbox/actions/workflows/ci.yml)
 [![MIT licence](https://img.shields.io/github/license/wpgenius/foldbox)](LICENSE)
@@ -36,6 +41,8 @@ npm install foldbox
 import Foldbox from 'foldbox';
 import 'foldbox/dist/foldbox.min.css';
 ```
+
+`import` gets the ES module build (`dist/foldbox.mjs`) and `require( 'foldbox' )` the UMD build. TypeScript types are included, so editors autocomplete the options and items.
 
 Or from the jsDelivr CDN:
 
@@ -128,8 +135,10 @@ Issues and pull requests are welcome. See [CONTRIBUTING.md](CONTRIBUTING.md) for
 
 ```bash
 npm install
-npm run build   # dist/foldbox.min.js and dist/foldbox.min.css
+npm run build   # dist/foldbox.min.js, dist/foldbox.mjs and dist/foldbox.min.css
 npm run site    # assemble the website into _site/
+npm test        # TypeScript types and browser tests (run `npx playwright install chromium` once)
+npm run size    # check the built files against their size limits
 ```
 
 Open `demo/index.html` (development demo, uses `src/`) or `_site/index.html` (the website) through a local web server.
