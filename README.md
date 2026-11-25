@@ -124,7 +124,7 @@ Current versions of Chrome, Edge, Firefox and Safari, on desktop and mobile.
 
 ## Contributing
 
-Issues and pull requests are welcome.
+Issues and pull requests are welcome. See [CONTRIBUTING.md](CONTRIBUTING.md) for the full guide, the [code of conduct](CODE_OF_CONDUCT.md), and [SECURITY.md](SECURITY.md) for reporting vulnerabilities privately.
 
 ```bash
 npm install
