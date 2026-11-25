@@ -295,12 +295,15 @@
 				locked = true;
 				this.bind();
 
+				// The navigation methods only work on an open gallery.
+				this.isOpen = true;
 				const start = Math.min(
 					Math.max( parseInt( this.options.index, 10 ) || 0, 0 ),
 					this.items.length - 1
 				);
 				this.goTo( start, true );
 			} catch ( error ) {
+				this.isOpen = false;
 				this.unbind();
 				if ( locked ) {
 					this.unlockScroll();
@@ -311,7 +314,6 @@
 				throw error;
 			}
 			openInstance = this;
-			this.isOpen = true;
 
 			const self = this;
 			window.requestAnimationFrame( function () {
@@ -570,6 +572,10 @@
 
 		goTo( index, instant ) {
 			const count = this.items.length;
+			index = Math.round( Number( index ) );
+			if ( ! this.isOpen || ! isFinite( index ) ) {
+				return this;
+			}
 			if ( this.options.loop ) {
 				index = ( ( index % count ) + count ) % count;
 			} else {
@@ -616,7 +622,8 @@
 
 			this.updateUi();
 			if ( this.timer ) {
-				this.restartProgress();
+				// Give the new item a full interval, also after manual navigation.
+				this.startTimer();
 			}
 			if ( ! instant ) {
 				this.emit( 'onChange' );
@@ -625,6 +632,9 @@
 		},
 
 		next() {
+			if ( ! this.isOpen ) {
+				return this;
+			}
 			if ( ! this.options.loop && this.index >= this.items.length - 1 ) {
 				this.bounce( -1 );
 				return this;
@@ -633,6 +643,9 @@
 		},
 
 		prev() {
+			if ( ! this.isOpen ) {
+				return this;
+			}
 			if ( ! this.options.loop && this.index <= 0 ) {
 				this.bounce( 1 );
 				return this;
@@ -974,6 +987,9 @@
 		},
 
 		toggleZoom( clientX, clientY ) {
+			if ( ! this.isOpen ) {
+				return;
+			}
 			if ( this.zoomState.scale > 1 ) {
 				this.zoomTo( 1, undefined, undefined, true );
 			} else {
@@ -1023,6 +1039,17 @@
 					return;
 				}
 			}
+			// The same pointer going down again means its release was missed.
+			if ( this.pointers.has( event.pointerId ) ) {
+				this.pointers.clear();
+				this.pinch = null;
+			}
+			// A second pointer only counts when it starts a pinch; otherwise it
+			// would be measured against the first pointer's start and swipe.
+			const pinch = this.pointers.size === 1 && this.options.zoom && this.currentImage();
+			if ( this.pointers.size && ! pinch ) {
+				return;
+			}
 			this.pointers.set( event.pointerId, { x: event.clientX, y: event.clientY } );
 			if ( this.pointers.size === 1 ) {
 				this.gesture = {
@@ -1034,7 +1061,7 @@
 					axis: null,
 				};
 				this.dragged = false;
-			} else if ( this.pointers.size === 2 && this.options.zoom && this.currentImage() ) {
+			} else {
 				const pts = Array.from( this.pointers.values() );
 				this.pinch = {
 					distance: Math.hypot( pts[ 0 ].x - pts[ 1 ].x, pts[ 0 ].y - pts[ 1 ].y ),
@@ -1046,6 +1073,12 @@
 
 		onPointerMove( event ) {
 			if ( ! this.pointers.has( event.pointerId ) ) {
+				return;
+			}
+			// No button held: it was released where the page couldn't see it
+			// (outside the window, over a video player). End the gesture there.
+			if ( event.buttons === 0 ) {
+				this.onPointerUp( event );
 				return;
 			}
 			this.pointers.set( event.pointerId, { x: event.clientX, y: event.clientY } );
@@ -1226,7 +1259,7 @@
 		/* Slideshow ----------------------------------------------------- */
 
 		play() {
-			if ( this.timer || this.items.length < 2 ) {
+			if ( ! this.isOpen || this.timer || this.items.length < 2 ) {
 				return this;
 			}
 			// Without loop the slideshow would stop at once on the last slide;
@@ -1234,9 +1267,16 @@
 			if ( ! this.options.loop && this.index >= this.items.length - 1 ) {
 				this.goTo( 0 );
 			}
-			const self = this;
 			this.root.classList.add( 'is-playing' );
 			this.setPlayButton( true );
+			this.startTimer();
+			return this;
+		},
+
+		// (Re)start the slideshow interval and its progress bar.
+		startTimer() {
+			const self = this;
+			window.clearInterval( this.timer );
 			this.timer = window.setInterval( function () {
 				if ( ! self.options.loop && self.index >= self.items.length - 1 ) {
 					self.pause();
@@ -1245,7 +1285,6 @@
 				self.goTo( self.index + 1 );
 			}, this.options.slideshowInterval );
 			this.restartProgress();
-			return this;
 		},
 
 		pause() {
@@ -1291,6 +1330,9 @@
 		},
 
 		toggleFullscreen() {
+			if ( ! this.isOpen ) {
+				return;
+			}
 			if ( this.isFullscreen() ) {
 				( document.exitFullscreen || document.webkitExitFullscreen ).call( document );
 			} else {
@@ -1355,6 +1397,10 @@
 			}
 			this.leaveSlide( this.index );
 			this.unbind();
+			// Pointers still down would otherwise linger into the next open().
+			this.pointers.clear();
+			this.gesture = null;
+			this.pinch = null;
 			this.unlockScroll();
 			if ( openInstance === this ) {
 				openInstance = null;
@@ -1396,6 +1442,23 @@
 	/* ------------------------------------------------------------------ */
 	/* Filterable grid                                                     */
 	/* ------------------------------------------------------------------ */
+
+	/**
+	 * Hide or show a grid item. The hidden attribute alone loses to an item's
+	 * own display style (display: flex and the like), so also set an inline
+	 * display: none !important, and remove only that one when showing it.
+	 *
+	 * @param {Element} item Grid item.
+	 * @param {boolean} hide Whether to hide it.
+	 */
+	function setHidden( item, hide ) {
+		item.hidden = hide;
+		if ( hide ) {
+			item.style.setProperty( 'display', 'none', 'important' );
+		} else if ( item.style.getPropertyValue( 'display' ) === 'none' && item.style.getPropertyPriority( 'display' ) === 'important' ) {
+			item.style.removeProperty( 'display' );
+		}
+	}
 
 	/**
 	 * Animate a grid between filters. Items that stay glide to their new
@@ -1453,7 +1516,7 @@
 			if ( instant || reducedMotion() || typeof this.grid.animate !== 'function' ) {
 				stopAnimations();
 				items.forEach( function ( item ) {
-					item.hidden = ! matches( item );
+					setHidden( item, ! matches( item ) );
 				} );
 				return this;
 			}
@@ -1490,7 +1553,7 @@
 			} );
 
 			items.forEach( function ( item ) {
-				item.hidden = ! matches( item );
+				setHidden( item, ! matches( item ) );
 			} );
 
 			// Read every new position before appending ghosts or starting any

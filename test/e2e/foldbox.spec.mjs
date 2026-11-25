@@ -158,6 +158,115 @@ test.describe( 'grid', () => {
 		await page.evaluate( () => window.grid.filter( '*', true ) );
 		await expect( page.locator( '#grid .city' ) ).toBeVisible();
 	} );
+
+	test( 'hides items that set their own display, animated or not', async ( { page } ) => {
+		await page.goto( '/' );
+		await page.addStyleTag( { content: '#grid div { display: flex; }' } );
+		for ( const instant of [ true, false ] ) {
+			await page.evaluate( ( i ) => window.grid.filter( '.nature', i ), instant );
+			await expect( page.locator( '#grid > .city:not(.foldbox-ghost)' ) ).toBeHidden();
+			await page.evaluate( ( i ) => window.grid.filter( '*', i ), instant );
+			await expect( page.locator( '#grid > .city:not(.foldbox-ghost)' ) ).toBeVisible();
+			expect( await page.locator( '#grid > .city:not(.foldbox-ghost)' ).evaluate( ( n ) => n.style.display ) ).toBe( '' );
+		}
+	} );
+} );
+
+test.describe( 'API and gestures', () => {
+	const items = [ 'images/photo-1.svg', 'images/photo-2.svg', 'images/photo-3.svg' ];
+
+	test( 'manual navigation restarts the slideshow interval', async ( { page } ) => {
+		await page.goto( '/' );
+		const gap = await page.evaluate( async ( list ) => {
+			const lb = Foldbox.open( list, { slideshowInterval: 600, speed: 0 } );
+			const wait = ( ms ) => new Promise( ( r ) => setTimeout( r, ms ) );
+			let changed = 0;
+			lb.options.onChange = () => ( changed = performance.now() );
+			lb.play();
+			await wait( 450 );
+			lb.next();
+			const manual = performance.now();
+			await wait( 400 );
+			const auto = changed;
+			lb.close( true );
+			return auto - manual; // ~0 when the next tick waited a full interval
+		}, items );
+		expect( gap ).toBeLessThan( 50 );
+	} );
+
+	test( 'a drag released outside the page stops following the mouse', async ( { page } ) => {
+		await openFirst( page );
+		const box = await page.locator( '.foldbox__stage' ).boundingBox();
+		const x = box.x + box.width / 2;
+		const y = box.y + box.height / 2;
+		await page.mouse.move( x, y );
+		await page.mouse.down();
+		await page.mouse.move( x - 30, y, { steps: 4 } );
+		// The release happened outside the window: next move has no button held.
+		const transform = await page.evaluate( ( [ cx, cy ] ) => {
+			window.dispatchEvent( new PointerEvent( 'pointermove', { pointerId: 1, clientX: cx - 300, clientY: cy, buttons: 0 } ) );
+			window.dispatchEvent( new PointerEvent( 'pointermove', { pointerId: 1, clientX: cx - 400, clientY: cy, buttons: 0 } ) );
+			return document.querySelector( '.foldbox__track' ).style.transform;
+		}, [ x, y ] );
+		expect( transform ).not.toContain( 'px' );
+		await page.mouse.up();
+	} );
+
+	test( 'two fingers without pinch zoom do not swipe', async ( { page } ) => {
+		await page.goto( '/' );
+		const index = await page.evaluate( ( list ) => {
+			const lb = Foldbox.open( list, { zoom: false, speed: 0 } );
+			const stage = document.querySelector( '.foldbox__stage' );
+			const send = ( type, id, x ) =>
+				( type === 'pointerdown' ? stage : window ).dispatchEvent(
+					new PointerEvent( type, { pointerId: id, clientX: x, clientY: 300, button: 0, buttons: 1, bubbles: true } )
+				);
+			send( 'pointerdown', 11, 300 );
+			send( 'pointerdown', 12, 500 );
+			send( 'pointermove', 12, 510 );
+			send( 'pointerup', 12, 510 );
+			send( 'pointerup', 11, 300 );
+			const i = lb.index;
+			lb.close( true );
+			return i;
+		}, items );
+		expect( index ).toBe( 0 );
+	} );
+
+	test( 'goTo rounds the index and ignores non-numbers', async ( { page } ) => {
+		await page.goto( '/' );
+		const result = await page.evaluate( ( list ) => {
+			const lb = Foldbox.open( list, { speed: 0 } );
+			lb.goTo( 1.4 );
+			const a = lb.index;
+			lb.goTo( NaN );
+			const b = lb.index;
+			lb.close( true );
+			return [ a, b, document.querySelectorAll( '.foldbox' ).length ];
+		}, items );
+		expect( result ).toEqual( [ 1, 1, 0 ] );
+	} );
+
+	test( 'methods on an unopened or closed gallery do nothing', async ( { page } ) => {
+		await page.goto( '/' );
+		const result = await page.evaluate( async ( list ) => {
+			let changes = 0;
+			const lb = new Foldbox.Lightbox( list, { slideshowInterval: 50, onChange: () => changes++ } );
+			lb.play();
+			lb.next();
+			lb.prev();
+			lb.goTo( 2 );
+			lb.toggleZoom();
+			lb.toggleFullscreen();
+			lb.open();
+			lb.close( true );
+			lb.play();
+			lb.next();
+			await new Promise( ( r ) => setTimeout( r, 250 ) );
+			return [ changes, lb.timer ];
+		}, items );
+		expect( result ).toEqual( [ 0, null ] );
+	} );
 } );
 
 test.describe( 'builds', () => {
