@@ -3,7 +3,7 @@ name: Release
 # A change to the library code (src/) on main makes a release: the version is
 # bumped, dist/ rebuilt, CHANGELOG.md updated, and a tagged GitHub release is
 # published with the minified files, then the package is published to npm
-# (when the NPM_TOKEN secret is set). Patch by default; label the merged PR
+# through npm trusted publishing (no token). Patch by default; label the merged PR
 # "release: minor" or "release: major" for a bigger bump.
 
 on:
@@ -118,15 +118,12 @@ jobs:
             --notes-file "$notes" \
             dist/foldbox.min.js dist/foldbox.min.css
 
-      # Last, so a missing or failing npm publish never blocks the GitHub
-      # release. Without the NPM_TOKEN secret the step is skipped with a notice.
+      # Last, so a failing npm publish never blocks the GitHub release (retry
+      # with the "Publish to npm" workflow). npm trusted publishing: npm checks
+      # this workflow's GitHub identity, so no token is stored. It needs npm
+      # 11.5.1 or later, newer than the one Node 22 ships with.
       - name: Publish to npm
         if: steps.sync.outputs.skip != 'true'
-        env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
         run: |
-          if [ -z "$NODE_AUTH_TOKEN" ]; then
-            echo "::notice::NPM_TOKEN is not set; skipping the npm publish."
-            exit 0
-          fi
+          npm install -g npm@11 --ignore-scripts
           npm publish --provenance --access public --ignore-scripts

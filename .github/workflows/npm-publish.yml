@@ -39,18 +39,15 @@ jobs:
           registry-url: https://registry.npmjs.org
 
       # The tag holds the built dist/ files, so nothing needs installing.
+      # npm trusted publishing (no token) needs npm 11.5.1 or later.
       - name: Publish
         env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
           TAG: ${{ inputs.tag }}
         run: |
-          if [ -z "$NODE_AUTH_TOKEN" ]; then
-            echo "::error::The NPM_TOKEN secret is not set."
-            exit 1
-          fi
           version="$(node -p "require('./package.json').version")"
           if [ "v$version" != "$TAG" ]; then
             echo "::error::package.json at $TAG says $version."
             exit 1
           fi
+          npm install -g npm@11 --ignore-scripts
           npm publish --provenance --access public --ignore-scripts
