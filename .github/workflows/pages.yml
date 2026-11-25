@@ -19,13 +19,15 @@ permissions:
   pages: write
   id-token: write
 
-concurrency:
-  group: pages
-  cancel-in-progress: true
-
 jobs:
   deploy:
     if: github.event_name != 'workflow_run' || github.event.workflow_run.conclusion == 'success'
+    # On the job, not the workflow: a run skipped by the "if" above (the Release
+    # run for a "Release vX" commit) then never takes the group, so it can't
+    # cancel the real deploy. Deploys queue instead of cancelling each other.
+    concurrency:
+      group: pages
+      cancel-in-progress: false
     runs-on: ubuntu-latest
     environment:
       name: github-pages
