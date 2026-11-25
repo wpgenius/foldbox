@@ -55,8 +55,8 @@
 	"license": "MIT",
 	"devDependencies": {
 		"@playwright/test": "^1.65.1",
-		"esbuild": "0.24.0",
-		"typescript": "^5.9.3"
+		"esbuild": "0.28.2",
+		"typescript": "^7.0.2"
 	},
 	"homepage": "https://wpgenius.github.io/foldbox/"
 }
