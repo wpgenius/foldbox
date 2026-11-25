@@ -1,5 +1,20 @@
 # Changelog
 
+## 1.3.0 – 2026-11-25
+
+### Changes
+- Check the bundle size in CI (#90)
+- Run browser tests in CI (#89)
+- Add an ES module build (#88)
+- Ship TypeScript types (#87)
+- Add a social preview image (#86)
+- Add npm downloads, jsDelivr, bundle size and zero-dependency badges (#85)
+- Add a code of conduct (#77)
+- Add issue and pull request templates (#76)
+- Add a contributing guide (#75)
+- Add a security policy and private vulnerability reporting (#74)
+- Add Dependabot for GitHub Actions (#73)
+
 ## 1.2.1 – 2026-11-25
 
 ### Changes
