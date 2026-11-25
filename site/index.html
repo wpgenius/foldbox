@@ -248,13 +248,13 @@
 			<div class="section-head">
 				<span class="eyebrow">Get started</span>
 				<h2>Install</h2>
-				<p>Use the jsDelivr CDN, or download the two files from the latest release.</p>
+				<p>Install from npm, use the jsDelivr CDN, or download the two files from the latest release.</p>
 			</div>
 			<div class="tabs">
 				<div role="tablist" aria-label="Install method">
 					<button type="button" role="tab" id="tab-cdn" aria-controls="panel-cdn" aria-selected="true">CDN</button>
 					<button type="button" role="tab" id="tab-download" aria-controls="panel-download" aria-selected="false" tabindex="-1">Download</button>
-					<button type="button" role="tab" id="tab-module" aria-controls="panel-module" aria-selected="false" tabindex="-1">Module</button>
+					<button type="button" role="tab" id="tab-npm" aria-controls="panel-npm" aria-selected="false" tabindex="-1">npm</button>
 				</div>
 				<div role="tabpanel" id="panel-cdn" aria-labelledby="tab-cdn">
 					<div class="code" data-lang="html"><pre><code>&lt;link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/wpgenius/foldbox@1/dist/foldbox.min.css"&gt;
@@ -266,9 +266,11 @@
 					<div class="code" data-lang="html"><pre><code>&lt;link rel="stylesheet" href="foldbox.min.css"&gt;
 &lt;script src="foldbox.min.js"&gt;&lt;/script&gt;</code></pre></div>
 				</div>
-				<div role="tabpanel" id="panel-module" aria-labelledby="tab-module" hidden>
-					<p>Foldbox is a UMD module, so it also works with CommonJS and AMD loaders. Without a loader it sets <code>window.Foldbox</code>.</p>
-					<div class="code" data-lang="js"><pre><code>const Foldbox = require( './foldbox.min.js' );</code></pre></div>
+				<div role="tabpanel" id="panel-npm" aria-labelledby="tab-npm" hidden>
+					<div class="code" data-lang="bash"><pre><code>npm install foldbox</code></pre></div>
+					<p>Then import it in your bundle. Foldbox is a UMD module, so <code>require( 'foldbox' )</code> and AMD loaders work too.</p>
+					<div class="code" data-lang="js"><pre><code>import Foldbox from 'foldbox';
+import 'foldbox/dist/foldbox.min.css';</code></pre></div>
 				</div>
 			</div>
 			<p><a class="btn btn-primary" href="docs.html">Read the documentation</a></p>
