@@ -29,7 +29,7 @@
 	"scripts": {
 		"build": "npm run build:js && npm run build:esm && npm run build:css",
 		"build:js": "esbuild src/foldbox.js --minify --legal-comments=inline --target=es2018 --outfile=dist/foldbox.min.js",
-		"build:esm": "esbuild src/foldbox.js --bundle --format=esm --minify --legal-comments=inline --target=es2018 --outfile=dist/foldbox.mjs",
+		"build:esm": "esbuild src/foldbox.esm.js --bundle --format=esm --minify --legal-comments=inline --target=es2018 --outfile=dist/foldbox.mjs",
 		"build:css": "esbuild src/foldbox.css --minify --legal-comments=inline --outfile=dist/foldbox.min.css",
 		"site": "rm -rf _site && mkdir _site && cp -R site/. _site/ && cp -R dist _site/dist && touch _site/.nojekyll",
 		"size": "node test/size.mjs",

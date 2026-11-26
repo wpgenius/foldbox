@@ -86,7 +86,7 @@
 		<div class="code" data-lang="bash"><pre><code>npm install foldbox</code></pre></div>
 		<div class="code" data-lang="js"><pre><code>import Foldbox from 'foldbox';
 import 'foldbox/dist/foldbox.min.css';</code></pre></div>
-		<p><code>import</code> gets the ES module build (<code>dist/foldbox.mjs</code>). Loaded with a <code>&lt;script&gt;</code> tag, Foldbox sets <code>window.Foldbox</code>; it is a UMD module, so CommonJS (<code>require( 'foldbox' )</code>) and AMD loaders work too.</p>
+		<p><code>import</code> gets the ES module build (<code>dist/foldbox.mjs</code>). It also has named exports: <code>import { open, bind, grid } from 'foldbox'</code>. Loaded with a <code>&lt;script&gt;</code> tag, Foldbox sets <code>window.Foldbox</code>; it is a UMD module, so CommonJS (<code>require( 'foldbox' )</code>) and AMD loaders work too.</p>
 		<p>TypeScript types are included (<code>Foldbox.Options</code>, <code>Foldbox.Item</code>, <code>Foldbox.Lightbox</code> and more), so editors autocomplete options and TypeScript checks your calls:</p>
 		<div class="code" data-lang="js"><pre><code>import Foldbox from 'foldbox';
 
@@ -204,7 +204,7 @@ Foldbox.open( items, options );</code></pre></div>
 			<tbody>
 				<tr><td><code>Foldbox.open( items, options )</code></td><td>Open a gallery. Returns the lightbox object.</td></tr>
 				<tr><td><code>Foldbox.bind( container, options )</code></td><td>Open links inside the container in a gallery. Returns an unbind function.</td></tr>
-				<tr><td><code>Foldbox.grid( element, options )</code></td><td>Make a <a href="#grid">filterable grid</a>.</td></tr>
+				<tr><td><code>Foldbox.grid( element, options )</code></td><td>Make a <a href="#grid">filterable grid</a> from an element or a CSS selector.</td></tr>
 				<tr><td><code>Foldbox.close()</code></td><td>Close whichever gallery is open.</td></tr>
 				<tr><td><code>Foldbox.defaults</code></td><td>Default options, shared by every gallery.</td></tr>
 				<tr><td><code>Foldbox.version</code></td><td>The version string, e.g. <code>'<span data-version></span>'</code>.</td></tr>
@@ -322,7 +322,7 @@ Foldbox.open( items, { theme: dark ? 'dark' : 'light' } );</code></pre></div>
 
 		<h2 id="grid">Filterable grid</h2>
 		<p><code>Foldbox.grid()</code> animates a grid between filters: items that stay glide to their new place, hidden items fade and shrink, new ones grow in. It works with any layout: CSS grid, flex or floats.</p>
-		<div class="code" data-lang="js"><pre><code>const grid = Foldbox.grid( document.querySelector( '.grid' ), { itemSelector: ':scope &gt; .card' } );
+		<div class="code" data-lang="js"><pre><code>const grid = Foldbox.grid( '.grid', { itemSelector: ':scope &gt; .card' } );
 
 grid.filter( '.weddings' );                              // CSS selector
 grid.filter( '*' );                                      // everything

@@ -133,6 +133,30 @@
 	}
 
 	/**
+	 * A numeric option, or the fallback when it isn't a number of at least `min`.
+	 *
+	 * @param {*}      value    Option value.
+	 * @param {number} fallback Default value.
+	 * @param {number} min      Smallest allowed value.
+	 * @return {number} The number to use.
+	 */
+	function number( value, fallback, min ) {
+		const n = typeof value === 'string' && value.trim() !== '' ? Number( value ) : value;
+		return typeof n === 'number' && isFinite( n ) && n >= min ? n : fallback;
+	}
+
+	/**
+	 * An element, or the first match of a selector.
+	 *
+	 * @param {Element|string} target Element or CSS selector.
+	 * @return {Element|null} The element, or null.
+	 */
+	function element( target ) {
+		const node = typeof target === 'string' ? document.querySelector( target ) : target;
+		return node && node.nodeType === 1 ? node : null;
+	}
+
+	/**
 	 * Return the URL if it is http(s) or blob (relative URLs included), else ''.
 	 *
 	 * @param {string} url URL to check.
@@ -253,15 +277,20 @@
 	 * @param {Object} options See DEFAULTS.
 	 */
 	function Lightbox( items, options ) {
-		this.options = Object.assign( {}, DEFAULTS, options || {} );
-		this.options.labels = Object.assign(
-			{},
-			LABELS,
-			DEFAULTS.labels,
-			( options && options.labels ) || {}
-		);
+		if ( ! Array.isArray( items ) ) {
+			throw new TypeError( 'Foldbox: items must be an array of URLs or item objects.' );
+		}
+		const o = ( this.options = Object.assign( {}, DEFAULTS, options || {} ) );
+		o.labels = Object.assign( {}, LABELS, DEFAULTS.labels, ( options && options.labels ) || {} );
+		// Own copies, so changing them on one gallery doesn't change the defaults.
+		o.youtubeParams = Object.assign( {}, o.youtubeParams );
+		o.vimeoParams = Object.assign( {}, o.vimeoParams );
+		// Numbers out of range (or not numbers) fall back to the defaults.
+		o.speed = number( o.speed, DEFAULTS.speed, 0 );
+		o.slideshowInterval = number( o.slideshowInterval, DEFAULTS.slideshowInterval, 100 );
+		o.maxZoom = number( o.maxZoom, DEFAULTS.maxZoom, 1 );
 		const self = this;
-		this.items = ( items || [] ).map( function ( item ) {
+		this.items = items.map( function ( item ) {
 			return normalize( item, self.options );
 		} );
 		this.index = 0;
@@ -360,6 +389,7 @@
 			progress.appendChild( el( 'span' ) );
 
 			this.buttons = {};
+			this.zoomShown = false; // The zoom button starts as "Zoom in".
 			if ( o.zoom ) {
 				this.buttons.zoom = actions.appendChild( button( 'zoomIn', L.zoomIn ) );
 			}
@@ -933,8 +963,11 @@
 			wrap.style.transition = animate ? '' : 'none';
 			wrap.style.transform = z.scale === 1 ? '' : 'translate3d(' + z.x + 'px,' + z.y + 'px,0) scale(' + z.scale + ')';
 			this.root.classList.toggle( 'is-zoomed', z.scale > 1 );
-			if ( this.buttons.zoom ) {
-				const zoomed = z.scale > 1;
+			const zoomed = z.scale > 1;
+			// Runs on every pan, wheel and resize event: touch the button only
+			// when the zoomed state flips.
+			if ( this.buttons.zoom && zoomed !== this.zoomShown ) {
+				this.zoomShown = zoomed;
 				const label = zoomed ? this.options.labels.zoomOut : this.options.labels.zoomIn;
 				this.buttons.zoom.innerHTML = icon( zoomed ? 'zoomOut' : 'zoomIn' );
 				this.buttons.zoom.setAttribute( 'aria-label', label );
@@ -1372,6 +1405,15 @@
 			if ( gap > 0 ) {
 				html.style.paddingRight = gap + 'px';
 			}
+			// Make the page behind the gallery unreachable for keyboard and
+			// screen readers (Tab out of a video player would land there).
+			const root = this.root;
+			this.inerted = Array.prototype.filter.call( document.body.children, function ( node ) {
+				return node !== root && ! node.inert && node.tagName !== 'SCRIPT';
+			} );
+			this.inerted.forEach( function ( node ) {
+				node.inert = true;
+			} );
 		},
 
 		unlockScroll() {
@@ -1380,6 +1422,10 @@
 				html.style.overflow = this.savedScroll.overflow;
 				html.style.paddingRight = this.savedScroll.paddingRight;
 			}
+			( this.inerted || [] ).forEach( function ( node ) {
+				node.inert = false;
+			} );
+			this.inerted = null;
 		},
 
 		/* Close --------------------------------------------------------- */
@@ -1467,11 +1513,15 @@
 	 * Animate a grid between filters. Items that stay glide to their new
 	 * place, new ones scale in, removed ones scale out (FLIP technique).
 	 *
-	 * @param {Element} grid    Grid container.
+	 * @param {Element|string} grid Grid container, or a CSS selector for it.
 	 * @param {Object}  options { itemSelector, duration, easing }.
 	 */
 	function Grid( grid, options ) {
-		this.grid = grid;
+		const node = element( grid );
+		if ( ! node ) {
+			throw new TypeError( 'Foldbox.grid: no element found for ' + ( typeof grid === 'string' ? '"' + grid + '"' : String( grid ) ) + '.' );
+		}
+		grid = this.grid = node;
 		this.options = Object.assign( { itemSelector: ':scope > *', duration: 400, easing: 'ease' }, options || {} );
 		if ( window.getComputedStyle( grid ).position === 'static' ) {
 			grid.style.position = 'relative';
@@ -1627,7 +1677,7 @@
 	 * @return {Function} Call to unbind.
 	 */
 	function bind( container, options ) {
-		const rootEl = typeof container === 'string' ? document.querySelector( container ) : container;
+		const rootEl = element( container );
 		if ( ! rootEl ) {
 			return function () {};
 		}

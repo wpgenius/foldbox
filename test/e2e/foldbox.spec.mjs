@@ -260,6 +260,104 @@ test.describe( 'API and gestures', () => {
 		expect( errors ).toEqual( [] );
 	} );
 
+	test( 'wrong arguments throw a clear TypeError', async ( { page } ) => {
+		await page.goto( '/' );
+		const errors = await page.evaluate( () => {
+			const error = ( fn ) => {
+				try {
+					fn();
+					return 'no error';
+				} catch ( e ) {
+					return e.constructor.name + ': ' + e.message;
+				}
+			};
+			return [
+				error( () => Foldbox.open( 'photo.jpg' ) ),
+				error( () => Foldbox.open( null ) ),
+				error( () => Foldbox.grid( '#missing' ) ),
+				error( () => Foldbox.grid( null ) ),
+			];
+		} );
+		expect( errors[ 0 ] ).toMatch( /^TypeError: Foldbox: items must be an array/ );
+		expect( errors[ 1 ] ).toMatch( /^TypeError: Foldbox: items must be an array/ );
+		expect( errors[ 2 ] ).toBe( 'TypeError: Foldbox.grid: no element found for "#missing".' );
+		expect( errors[ 3 ] ).toMatch( /^TypeError: Foldbox.grid: no element found/ );
+	} );
+
+	test( 'grid() takes a selector', async ( { page } ) => {
+		await page.goto( '/' );
+		await page.evaluate( () => Foldbox.grid( '#grid', { duration: 0 } ).filter( '.city', true ) );
+		await expect( page.locator( '#grid .nature' ).first() ).toBeHidden();
+		await expect( page.locator( '#grid .city' ) ).toBeVisible();
+	} );
+
+	test( 'numeric options out of range fall back to the defaults', async ( { page } ) => {
+		await page.goto( '/' );
+		const options = await page.evaluate( () => {
+			const read = ( o ) => {
+				const lb = new Foldbox.Lightbox( [ 'images/photo-1.svg' ], o );
+				return [ lb.options.slideshowInterval, lb.options.maxZoom, lb.options.speed ];
+			};
+			return [
+				read( { slideshowInterval: 0, maxZoom: 'big', speed: -5 } ),
+				read( { slideshowInterval: NaN, maxZoom: 0.5, speed: null } ),
+				read( { slideshowInterval: '2500', maxZoom: '4', speed: '200' } ),
+			];
+		} );
+		expect( options ).toEqual( [
+			[ 5000, 3, 400 ],
+			[ 5000, 3, 400 ],
+			[ 2500, 4, 200 ],
+		] );
+	} );
+
+	test( 'the zoom button only changes when the zoom state does', async ( { page } ) => {
+		await openFirst( page );
+		await page.getByRole( 'button', { name: 'Zoom in' } ).click();
+		const writes = await page.evaluate( async () => {
+			let count = 0;
+			new MutationObserver( ( list ) => ( count += list.length ) ).observe( document.querySelector( '.foldbox__btn--zoomIn' ), { childList: true, attributes: true } );
+			for ( let i = 0; i < 30; i++ ) {
+				window.dispatchEvent( new Event( 'resize' ) );
+			}
+			await new Promise( ( r ) => setTimeout( r, 50 ) );
+			return count;
+		} );
+		expect( writes ).toBe( 0 );
+		await page.getByRole( 'button', { name: 'Zoom out' } ).click();
+		await expect( page.getByRole( 'button', { name: 'Zoom in' } ) ).toBeVisible();
+	} );
+
+	test( 'each gallery has its own youtubeParams and vimeoParams', async ( { page } ) => {
+		await page.goto( '/' );
+		const defaults = await page.evaluate( () => {
+			const lb = new Foldbox.Lightbox( [ 'images/photo-1.svg' ] );
+			lb.options.youtubeParams.mute = 1;
+			lb.options.vimeoParams.muted = 1;
+			return [ Foldbox.defaults.youtubeParams, Foldbox.defaults.vimeoParams ];
+		} );
+		expect( defaults ).toEqual( [ { rel: 0 }, {} ] );
+	} );
+
+	test( 'the page behind the gallery is inert while it is open', async ( { page } ) => {
+		await page.goto( '/' );
+		await page.evaluate( () => {
+			const already = document.createElement( 'div' );
+			already.id = 'already-inert';
+			already.inert = true;
+			document.body.appendChild( already );
+		} );
+		await page.getByRole( 'link', { name: 'Photo one' } ).click();
+		await expect( dialog( page ) ).toBeVisible();
+		const open = await page.evaluate( () => [ document.getElementById( 'gallery' ).inert, document.getElementById( 'grid' ).inert, document.querySelector( '.foldbox' ).inert ] );
+		expect( open ).toEqual( [ true, true, false ] );
+		await page.keyboard.press( 'Escape' );
+		await expect( dialog( page ) ).toHaveCount( 0 );
+		const closed = await page.evaluate( () => [ document.getElementById( 'gallery' ).inert, document.getElementById( 'grid' ).inert, document.getElementById( 'already-inert' ).inert ] );
+		expect( closed ).toEqual( [ false, false, true ] );
+		await expect( page.getByRole( 'link', { name: 'Photo one' } ) ).toBeFocused();
+	} );
+
 	test( 'methods on an unopened or closed gallery do nothing', async ( { page } ) => {
 		await page.goto( '/' );
 		const result = await page.evaluate( async ( list ) => {
@@ -294,5 +392,11 @@ test.describe( 'builds', () => {
 		expect( api.version ).toMatch( /^\d+\.\d+\.\d+$/ );
 		expect( api.open ).toBe( 'function' );
 		expect( api.leaked ).toBe( false );
+		// The named exports are the same functions and objects as the default export's.
+		const same = await page.evaluate( () =>
+			Object.keys( window.namedExports ).filter( ( key ) => window.namedExports[ key ] !== window.FoldboxModule[ key ] )
+		);
+		expect( same ).toEqual( [] );
+		expect( await page.evaluate( () => Object.keys( window.namedExports ).length ) ).toBe( 8 );
 	} );
 } );
