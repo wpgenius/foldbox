@@ -1,5 +1,14 @@
 # Changelog
 
+## 1.4.1 – 2026-11-26
+
+### Changes
+- Tab can leave the gallery in Safari (#116)
+- Tests: no video or item detection coverage, Chromium only (#115)
+- Grid filter ghosts copy ids, form names and media (#114)
+- exitFullscreen() rejections are never caught (#113)
+- Counter label only replaces the first %1 and %2 (#112)
+
 ## 1.4.0 – 2026-11-26
 
 ### Changes
