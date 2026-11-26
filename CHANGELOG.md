@@ -1,5 +1,16 @@
 # Changelog
 
+## 1.3.1 – 2026-11-26
+
+### Changes
+- Methods called on a closed or unopened lightbox misbehave (#101)
+- goTo() with a non-integer index crashes the gallery (#100)
+- Two-finger touch can change slides or close the gallery when pinch zoom doesn't apply (#99)
+- Slideshow timer doesn't restart after manual navigation (#98)
+- Mouse drag keeps going after release outside the window or over a video player (#97)
+- Grid filter doesn't hide cards that set their own display (#96)
+- Website deploy after a release can be cancelled by the skipped run (#94)
+
 ## 1.3.0 – 2026-11-25
 
 ### Changes
