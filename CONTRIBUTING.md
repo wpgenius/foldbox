@@ -17,13 +17,13 @@ npm run site    # assemble the website (site/ + dist/) into _site/
 ## Tests
 
 ```bash
-npx playwright install chromium   # once, downloads the test browser
+npx playwright install chromium firefox webkit   # once, downloads the test browsers
 npm run build
-npm test        # TypeScript types (test/types.ts) and browser tests (test/e2e/)
+npm test        # TypeScript types (test/types.ts), unit tests (test/unit/) and browser tests (test/e2e/)
 npm run size    # the built files against their size limits (test/size.mjs)
 ```
 
-The browser tests open `test/fixtures/index.html` in Chromium with Playwright and check opening, navigation (buttons, keys, swipe), zoom and panning, closing, keyboard focus, a failed image, the grid and the ES module build. They use local images only. CI runs all of these on every pull request. When you change behaviour, add or update a test; when you change the public API, update `types/foldbox.d.ts` and `test/types.ts` too.
+The unit tests run in plain Node (`npm run test:unit`) and check how items are detected from their URLs (YouTube, Vimeo, video files, start times, thumbnails) and how options are read. The browser tests open `test/fixtures/index.html` in Chromium, Firefox and WebKit with Playwright and check opening, navigation (buttons, keys, swipe), zoom and panning, closing, keyboard focus, videos, options, a failed image, the grid and the ES module build. They use local images only and never load a real video player; `npx playwright test --project=chromium` runs one browser. CI runs all of these on every pull request. When you change behaviour, add or update a test; when you change the public API, update `types/foldbox.d.ts` and `test/types.ts` too.
 
 | Folder | What it is |
 |---|---|
