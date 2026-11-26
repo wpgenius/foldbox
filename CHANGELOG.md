@@ -1,5 +1,10 @@
 # Changelog
 
+## 1.3.2 – 2026-11-26
+
+### Changes
+- Keyboard handler throws when the event target isn't an element (#103)
+
 ## 1.3.1 – 2026-11-26
 
 ### Changes
