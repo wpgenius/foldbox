@@ -1,6 +1,6 @@
 {
 	"name": "foldbox",
-	"version": "1.3.2",
+	"version": "1.4.0",
 	"description": "Lightweight lightbox and filterable grid for photos and videos: thumbnails, zoom, fullscreen, slideshow, YouTube, Vimeo and MP4.",
 	"main": "dist/foldbox.min.js",
 	"module": "dist/foldbox.mjs",

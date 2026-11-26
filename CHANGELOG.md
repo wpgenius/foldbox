@@ -1,5 +1,15 @@
 # Changelog
 
+## 1.4.0 – 2026-11-26
+
+### Changes
+- Page behind the open gallery stays reachable (#110)
+- youtubeParams and vimeoParams objects are shared with Foldbox.defaults (#109)
+- Zoom button SVG is rebuilt on every pan, wheel and resize event (#108)
+- Numeric options aren't validated (#107)
+- Unclear errors for wrong arguments to open() and grid() (#106)
+- Named imports type-check but the ES module only has a default export (#105)
+
 ## 1.3.2 – 2026-11-26
 
 ### Changes
