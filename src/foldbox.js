@@ -1201,7 +1201,10 @@
 			}
 			// Leave arrow, Home and End keys to a focused video (seeking), and
 			// browser shortcuts such as Alt+Left (Back) to the browser.
-			if ( ! this.options.keyboard || event.target.closest( 'video' ) || event.altKey || event.ctrlKey || event.metaKey ) {
+			// The target is an element for real key presses, but a script may
+			// dispatch the event on document.
+			const inVideo = event.target && typeof event.target.closest === 'function' && event.target.closest( 'video' );
+			if ( ! this.options.keyboard || inVideo || event.altKey || event.ctrlKey || event.metaKey ) {
 				return;
 			}
 			// While zoomed, the arrow keys look around the image (as dragging does).

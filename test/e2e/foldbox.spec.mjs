@@ -247,6 +247,19 @@ test.describe( 'API and gestures', () => {
 		expect( result ).toEqual( [ 1, 1, 0 ] );
 	} );
 
+	test( 'a key event dispatched on document works', async ( { page } ) => {
+		await openFirst( page );
+		const errors = [];
+		page.on( 'pageerror', ( e ) => errors.push( e.message ) );
+		await page.evaluate( () => {
+			document.dispatchEvent( new KeyboardEvent( 'keydown', { key: 'ArrowRight', bubbles: true } ) );
+		} );
+		await expect( counter( page ) ).toHaveText( '2 / 3' );
+		await page.evaluate( () => document.dispatchEvent( new KeyboardEvent( 'keydown', { key: 'Escape' } ) ) );
+		await expect( dialog( page ) ).toHaveCount( 0 );
+		expect( errors ).toEqual( [] );
+	} );
+
 	test( 'methods on an unopened or closed gallery do nothing', async ( { page } ) => {
 		await page.goto( '/' );
 		const result = await page.evaluate( async ( list ) => {
