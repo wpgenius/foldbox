@@ -34,8 +34,9 @@
 		"site": "rm -rf _site && mkdir _site && cp -R site/. _site/ && cp -R dist _site/dist && touch _site/.nojekyll",
 		"size": "node test/size.mjs",
 		"test:types": "tsc -p test/tsconfig.json",
+		"test:unit": "node --test test/unit/*.test.mjs",
 		"test:e2e": "playwright test",
-		"test": "npm run test:types && npm run test:e2e"
+		"test": "npm run test:types && npm run test:unit && npm run test:e2e"
 	},
 	"keywords": [
 		"lightbox",

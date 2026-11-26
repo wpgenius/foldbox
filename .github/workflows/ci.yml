@@ -32,8 +32,11 @@ jobs:
       - name: TypeScript types
         run: npm run test:types
 
-      - name: Install Chromium for the browser tests
-        run: npx playwright install --with-deps chromium
+      - name: Unit tests (item detection and options)
+        run: npm run test:unit
+
+      - name: Install Chromium, Firefox and WebKit for the browser tests
+        run: npx playwright install --with-deps chromium firefox webkit
 
       - name: Browser tests
         run: npm run test:e2e

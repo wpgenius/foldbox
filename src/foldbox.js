@@ -133,6 +133,37 @@
 	}
 
 	/**
+	 * Fill in a counter label: every %1 is the position, every %2 the total.
+	 *
+	 * @param {string}        label    Label such as '%1 / %2'.
+	 * @param {number}        position Position, from 1.
+	 * @param {number|string} total    Number of items.
+	 * @return {string} The text.
+	 */
+	function counterText( label, position, total ) {
+		return String( label ).split( '%1' ).join( String( position ) ).split( '%2' ).join( String( total ) );
+	}
+
+	/**
+	 * Ignore the rejection of a promise (fullscreen requests fail when the
+	 * browser refuses or the state already changed).
+	 *
+	 * @param {*} result Return value that may be a promise.
+	 */
+	function quiet( result ) {
+		if ( result && typeof result.catch === 'function' ) {
+			result.catch( function () {} );
+		}
+	}
+
+	function exitFullscreen() {
+		const exit = document.exitFullscreen || document.webkitExitFullscreen;
+		if ( exit ) {
+			quiet( exit.call( document ) );
+		}
+	}
+
+	/**
 	 * A numeric option, or the fallback when it isn't a number of at least `min`.
 	 *
 	 * @param {*}      value    Option value.
@@ -445,7 +476,7 @@
 				this.thumbButtons = this.items.map( function ( item, i ) {
 					const thumb = el( 'button', 'foldbox__thumb foldbox__thumb--' + item.type, {
 						type: 'button',
-						'aria-label': L.counter.replace( '%1', String( i + 1 ) ).replace( '%2', total ),
+						'aria-label': counterText( L.counter, i + 1, total ),
 						'data-index': String( i ),
 					} );
 					if ( item.thumb ) {
@@ -709,9 +740,7 @@
 			const item = this.items[ this.index ];
 			const count = this.items.length;
 
-			this.counter.textContent = o.labels.counter
-				.replace( '%1', String( this.index + 1 ) )
-				.replace( '%2', String( count ) );
+			this.counter.textContent = counterText( o.labels.counter, this.index + 1, count );
 
 			if ( o.captions && item.caption ) {
 				if ( o.htmlCaptions ) {
@@ -1281,15 +1310,18 @@
 				event.preventDefault();
 				return;
 			}
-			const first = focusable[ 0 ];
-			const last = focusable[ focusable.length - 1 ];
-			if ( event.shiftKey && ( document.activeElement === first || ! this.root.contains( document.activeElement ) ) ) {
-				event.preventDefault();
-				last.focus();
-			} else if ( ! event.shiftKey && ( document.activeElement === last || ! this.root.contains( document.activeElement ) ) ) {
-				event.preventDefault();
-				first.focus();
+			// Move focus ourselves on every Tab: Safari's own Tab order skips
+			// buttons and would leave the gallery.
+			const count = focusable.length;
+			const at = focusable.indexOf( document.activeElement );
+			let next;
+			if ( event.shiftKey ) {
+				next = at <= 0 ? count - 1 : at - 1;
+			} else {
+				next = at === -1 || at === count - 1 ? 0 : at + 1;
 			}
+			event.preventDefault();
+			focusable[ next ].focus();
 		},
 
 		/* Slideshow ----------------------------------------------------- */
@@ -1370,14 +1402,11 @@
 				return;
 			}
 			if ( this.isFullscreen() ) {
-				( document.exitFullscreen || document.webkitExitFullscreen ).call( document );
+				exitFullscreen();
 			} else {
 				const request = this.root.requestFullscreen || this.root.webkitRequestFullscreen;
 				if ( request ) {
-					const result = request.call( this.root );
-					if ( result && result.catch ) {
-						result.catch( function () {} );
-					}
+					quiet( request.call( this.root ) );
 				}
 			}
 		},
@@ -1442,7 +1471,7 @@
 			this.isOpen = false;
 			this.pause();
 			if ( this.isFullscreen() ) {
-				( document.exitFullscreen || document.webkitExitFullscreen ).call( document );
+				exitFullscreen();
 			}
 			this.leaveSlide( this.index );
 			this.unbind();
@@ -1593,6 +1622,21 @@
 				}
 				const rect = before.get( item );
 				const ghost = item.cloneNode( true );
+				// A copy must not take the original's id, its form name (a copied
+				// checked radio would uncheck the original) or load its media again.
+				[ ghost ].concat( Array.prototype.slice.call( ghost.querySelectorAll( '[id], [name]' ) ) ).forEach( function ( node ) {
+					node.removeAttribute( 'id' );
+					node.removeAttribute( 'name' );
+				} );
+				const media = 'iframe, video, audio, object, embed';
+				const originals = item.querySelectorAll( media );
+				Array.prototype.forEach.call( ghost.querySelectorAll( media ), function ( node, n ) {
+					const box = originals[ n ].getBoundingClientRect();
+					const placeholder = document.createElement( 'div' );
+					placeholder.style.width = box.width + 'px';
+					placeholder.style.height = box.height + 'px';
+					node.parentNode.replaceChild( placeholder, node );
+				} );
 				ghost.setAttribute( 'aria-hidden', 'true' );
 				ghost.inert = true;
 				ghost.classList.add( 'foldbox-ghost' );
@@ -1601,7 +1645,9 @@
 				ghost.style.pointerEvents = 'none';
 				ghost.style.left = rect.left - gridRect.left - grid.clientLeft + 'px';
 				ghost.style.top = rect.top - gridRect.top - grid.clientTop + 'px';
+				ghost.style.boxSizing = 'border-box';
 				ghost.style.width = rect.width + 'px';
+				ghost.style.height = rect.height + 'px';
 				ghosts.push( ghost );
 			} );
 

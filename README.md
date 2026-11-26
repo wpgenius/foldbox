@@ -137,7 +137,7 @@ Issues and pull requests are welcome. See [CONTRIBUTING.md](CONTRIBUTING.md) for
 npm install
 npm run build   # dist/foldbox.min.js, dist/foldbox.mjs and dist/foldbox.min.css
 npm run site    # assemble the website into _site/
-npm test        # TypeScript types and browser tests (run `npx playwright install chromium` once)
+npm test        # TypeScript types, unit tests and browser tests (run `npx playwright install chromium firefox webkit` once)
 npm run size    # check the built files against their size limits
 ```
 

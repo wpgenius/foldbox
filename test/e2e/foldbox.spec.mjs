@@ -95,7 +95,11 @@ test.describe( 'zoom', () => {
 
 test.describe( 'closing', () => {
 	test( 'close button returns focus to the thumbnail link', async ( { page } ) => {
-		await openFirst( page );
+		// Opened from the keyboard: Safari doesn't focus links on click.
+		await page.goto( '/' );
+		await page.getByRole( 'link', { name: 'Photo one' } ).focus();
+		await page.keyboard.press( 'Enter' );
+		await expect( dialog( page ) ).toBeVisible();
 		await page.getByRole( 'button', { name: 'Close' } ).click();
 		await expect( dialog( page ) ).toHaveCount( 0 );
 		await expect( page.getByRole( 'link', { name: 'Photo one' } ) ).toBeFocused();
@@ -119,10 +123,15 @@ test.describe( 'closing', () => {
 test.describe( 'keyboard focus', () => {
 	test( 'Tab stays inside the gallery', async ( { page } ) => {
 		await openFirst( page );
+		const seen = new Set();
 		for ( let i = 0; i < 15; i++ ) {
 			await page.keyboard.press( 'Tab' );
 			expect( await page.evaluate( () => !! document.activeElement.closest( '.foldbox' ) ) ).toBe( true );
+			seen.add( await page.evaluate( () => document.activeElement.getAttribute( 'aria-label' ) ) );
 		}
+		// Every browser, Safari included, steps through the gallery's buttons.
+		expect( seen ).toContain( 'Next' );
+		expect( seen ).toContain( 'Close' );
 		for ( let i = 0; i < 5; i++ ) {
 			await page.keyboard.press( 'Shift+Tab' );
 			expect( await page.evaluate( () => !! document.activeElement.closest( '.foldbox' ) ) ).toBe( true );
@@ -157,6 +166,21 @@ test.describe( 'grid', () => {
 		await expect( page.locator( '#grid .nature' ) ).toHaveCount( 2 );
 		await page.evaluate( () => window.grid.filter( '*', true ) );
 		await expect( page.locator( '#grid .city' ) ).toBeVisible();
+	} );
+
+	test( 'fading copies have no ids, form names or media', async ( { page } ) => {
+		await page.goto( '/' );
+		await page.evaluate( () => {
+			const card = document.querySelector( '#grid .city' );
+			card.id = 'city-card';
+			card.innerHTML = 'B <input type="radio" name="pick" checked><iframe src="about:blank" title="x"></iframe>';
+			window.grid.options.duration = 2000;
+			window.grid.filter( '.nature' );
+		} );
+		const ghost = page.locator( '#grid > .foldbox-ghost' );
+		await expect( ghost ).toHaveCount( 1 );
+		expect( await ghost.evaluate( ( g ) => [ g.id, g.querySelectorAll( '[id], [name], iframe' ).length ] ) ).toEqual( [ '', 0 ] );
+		expect( await page.evaluate( () => document.querySelector( '#city-card input' ).checked ) ).toBe( true );
 	} );
 
 	test( 'hides items that set their own display, animated or not', async ( { page } ) => {
@@ -199,13 +223,16 @@ test.describe( 'API and gestures', () => {
 		const box = await page.locator( '.foldbox__stage' ).boundingBox();
 		const x = box.x + box.width / 2;
 		const y = box.y + box.height / 2;
+		// The mouse's pointer ID differs between browsers; read the real one.
+		await page.evaluate( () => window.addEventListener( 'pointerdown', ( e ) => ( window.mouseId = e.pointerId ), { once: true } ) );
 		await page.mouse.move( x, y );
 		await page.mouse.down();
 		await page.mouse.move( x - 30, y, { steps: 4 } );
 		// The release happened outside the window: next move has no button held.
 		const transform = await page.evaluate( ( [ cx, cy ] ) => {
-			window.dispatchEvent( new PointerEvent( 'pointermove', { pointerId: 1, clientX: cx - 300, clientY: cy, buttons: 0 } ) );
-			window.dispatchEvent( new PointerEvent( 'pointermove', { pointerId: 1, clientX: cx - 400, clientY: cy, buttons: 0 } ) );
+			const id = window.mouseId;
+			window.dispatchEvent( new PointerEvent( 'pointermove', { pointerId: id, clientX: cx - 300, clientY: cy, buttons: 0 } ) );
+			window.dispatchEvent( new PointerEvent( 'pointermove', { pointerId: id, clientX: cx - 400, clientY: cy, buttons: 0 } ) );
 			return document.querySelector( '.foldbox__track' ).style.transform;
 		}, [ x, y ] );
 		expect( transform ).not.toContain( 'px' );
@@ -347,7 +374,8 @@ test.describe( 'API and gestures', () => {
 			already.inert = true;
 			document.body.appendChild( already );
 		} );
-		await page.getByRole( 'link', { name: 'Photo one' } ).click();
+		await page.getByRole( 'link', { name: 'Photo one' } ).focus();
+		await page.keyboard.press( 'Enter' );
 		await expect( dialog( page ) ).toBeVisible();
 		const open = await page.evaluate( () => [ document.getElementById( 'gallery' ).inert, document.getElementById( 'grid' ).inert, document.querySelector( '.foldbox' ).inert ] );
 		expect( open ).toEqual( [ true, true, false ] );
@@ -377,6 +405,118 @@ test.describe( 'API and gestures', () => {
 			return [ changes, lb.timer ];
 		}, items );
 		expect( result ).toEqual( [ 0, null ] );
+	} );
+} );
+
+test.describe( 'videos', () => {
+	// The players are never loaded for real: the tests stay offline.
+	test.beforeEach( async ( { page } ) => {
+		await page.route( /youtube|vimeo|ytimg/, ( route ) => route.fulfill( { status: 200, contentType: 'text/html', body: '' } ) );
+		await page.goto( '/' );
+	} );
+
+	test( 'YouTube shows a poster, then the privacy-enhanced player', async ( { page } ) => {
+		await page.evaluate( () => Foldbox.open( [ { src: 'https://youtu.be/dQw4w9WgXcQ?t=90', alt: 'Clip' } ] ) );
+		const play = page.getByRole( 'button', { name: 'Play video' } );
+		await expect( play ).toBeVisible();
+		await play.click();
+		const frame = page.locator( '.foldbox__iframe' );
+		await expect( frame ).toHaveAttribute( 'title', 'Clip' );
+		const src = new URL( await frame.getAttribute( 'src' ) );
+		expect( src.origin + src.pathname ).toBe( 'https://www.youtube-nocookie.com/embed/dQw4w9WgXcQ' );
+		expect( Object.fromEntries( src.searchParams ) ).toEqual( { autoplay: '1', playsinline: '1', start: '90', rel: '0' } );
+	} );
+
+	test( 'Vimeo plays with the private hash and start time', async ( { page } ) => {
+		await page.evaluate( () => Foldbox.open( [ 'https://vimeo.com/123456789/abcdef1234#t=65s' ], { vimeoParams: { muted: 1 } } ) );
+		await page.getByRole( 'button', { name: 'Play video' } ).click();
+		const src = await page.locator( '.foldbox__iframe' ).getAttribute( 'src' );
+		expect( src ).toBe( 'https://player.vimeo.com/video/123456789?autoplay=1&muted=1&h=abcdef1234#t=65s' );
+	} );
+
+	test( 'leaving a playing video puts its poster back', async ( { page } ) => {
+		await page.evaluate( () => Foldbox.open( [ 'https://youtu.be/dQw4w9WgXcQ', 'images/photo-1.svg' ], { speed: 0 } ) );
+		await page.getByRole( 'button', { name: 'Play video' } ).click();
+		await expect( page.locator( '.foldbox__iframe' ) ).toHaveCount( 1 );
+		await page.getByRole( 'button', { name: 'Next' } ).click();
+		await expect( page.locator( '.foldbox__iframe' ) ).toHaveCount( 0 );
+		await page.getByRole( 'button', { name: 'Previous' } ).click();
+		await expect( page.getByRole( 'button', { name: 'Play video' } ) ).toBeVisible();
+	} );
+
+	test( 'video files get a video element with every source', async ( { page } ) => {
+		await page.evaluate( () =>
+			Foldbox.open( [ { sources: [ { src: 'clip.webm', type: 'video/webm' }, { src: 'clip.mp4', type: 'video/mp4' } ], poster: 'images/photo-1.svg' } ] )
+		);
+		const video = page.locator( 'video.foldbox__video' );
+		await expect( video ).toHaveAttribute( 'poster', 'images/photo-1.svg' );
+		expect( await video.locator( 'source' ).evaluateAll( ( nodes ) => nodes.map( ( n ) => n.getAttribute( 'type' ) ) ) ).toEqual( [ 'video/webm', 'video/mp4' ] );
+	} );
+} );
+
+test.describe( 'options', () => {
+	test( 'download button: same-origin file, explicit URL, or hidden', async ( { page } ) => {
+		await page.goto( '/' );
+		await page.evaluate( () =>
+			Foldbox.open( [ 'images/photo-1.svg', { src: 'images/photo-2.svg', download: 'https://cdn.example/original.tiff' }, { src: 'images/photo-3.svg', download: false } ], { download: true, speed: 0 } )
+		);
+		const button = page.locator( '.foldbox__btn--download' );
+		await expect( button ).toHaveAttribute( 'href', 'images/photo-1.svg' );
+		await expect( button ).not.toHaveAttribute( 'target', /./ );
+		await page.getByRole( 'button', { name: 'Next' } ).click();
+		await expect( button ).toHaveAttribute( 'href', 'https://cdn.example/original.tiff' );
+		await expect( button ).toHaveAttribute( 'target', '_blank' );
+		await page.getByRole( 'button', { name: 'Next' } ).click();
+		await expect( button ).toBeHidden();
+	} );
+
+	test( 'themes and extra class names', async ( { page } ) => {
+		await page.goto( '/' );
+		for ( const [ theme, expected ] of [ [ 'light', /foldbox--light/ ], [ 'auto', /foldbox--auto/ ] ] ) {
+			await page.evaluate( ( t ) => Foldbox.open( [ 'images/photo-1.svg' ], { theme: t, className: 'mine' } ), theme );
+			await expect( page.locator( '.foldbox' ) ).toHaveClass( expected );
+			await expect( page.locator( '.foldbox' ) ).toHaveClass( /\bmine\b/ );
+			await page.evaluate( () => Foldbox.close() );
+			await expect( page.locator( '.foldbox' ) ).toHaveCount( 0 );
+		}
+	} );
+
+	test( 'labels translate the gallery, and every %1 and %2 is filled in', async ( { page } ) => {
+		await page.goto( '/' );
+		await page.evaluate( () =>
+			Foldbox.open( [ 'images/photo-1.svg', 'images/photo-2.svg' ], { labels: { close: 'Schließen', next: 'Weiter', counter: '%1 von %2 (%1/%2)' } } )
+		);
+		await expect( page.getByRole( 'button', { name: 'Schließen' } ) ).toBeVisible();
+		await expect( page.getByRole( 'button', { name: 'Weiter' } ) ).toBeVisible();
+		await expect( counter( page ) ).toHaveText( '1 von 2 (1/2)' );
+		await expect( page.locator( '.foldbox__thumb' ).nth( 1 ) ).toHaveAttribute( 'aria-label', '2 von 2 (2/2)' );
+	} );
+
+	test( 'bind() shows captions as text, open() as HTML unless turned off', async ( { page } ) => {
+		await page.goto( '/' );
+		// Closed galleries fade out for a moment; look at the open one.
+		const caption = page.locator( '.foldbox:not(.is-closing) .foldbox__caption' );
+		await page.evaluate( () => document.querySelector( '#gallery a' ).setAttribute( 'data-caption', '<b>bold</b>' ) );
+		await page.getByRole( 'link', { name: 'Photo one' } ).click();
+		await expect( caption ).toHaveText( '<b>bold</b>' );
+		await page.keyboard.press( 'Escape' );
+		await page.evaluate( () => Foldbox.open( [ { src: 'images/photo-1.svg', caption: '<b>bold</b>' } ] ) );
+		await expect( caption.locator( 'b' ) ).toHaveText( 'bold' );
+		await page.evaluate( () => Foldbox.close() );
+		await page.evaluate( () => Foldbox.open( [ { src: 'images/photo-1.svg', caption: '<b>bold</b>' } ], { htmlCaptions: false } ) );
+		await expect( caption ).toHaveText( '<b>bold</b>' );
+	} );
+
+	test( 'closing from fullscreen raises no errors', async ( { page } ) => {
+		const errors = [];
+		page.on( 'pageerror', ( e ) => errors.push( e.message ) );
+		await openFirst( page );
+		const button = page.locator( '.foldbox__btn--fullscreen' );
+		test.skip( ( await button.count() ) === 0, 'fullscreen not available in this browser' );
+		await button.click();
+		await page.evaluate( () => Foldbox.close() );
+		await page.evaluate( () => new Promise( ( r ) => setTimeout( r, 300 ) ) );
+		expect( errors ).toEqual( [] );
 	} );
 } );
 
