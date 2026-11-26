@@ -31,7 +31,7 @@ jobs:
     runs-on: ubuntu-latest
     environment:
       name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
+      url: ${{ steps.deployment.outputs.page_url || steps.retry.outputs.page_url }}
     steps:
       - uses: actions/checkout@v7
         with:
@@ -42,5 +42,15 @@ jobs:
       - uses: actions/upload-pages-artifact@v5
         with:
           path: _site
+      # Right after the upload, the deploy sometimes finds no artifact yet
+      # ("No artifacts named github-pages"). Re-running the job doesn't help
+      # (it then finds two), so wait and try once more in this run.
       - id: deployment
+        uses: actions/deploy-pages@v5
+        continue-on-error: true
+      - name: Wait before retrying the deploy
+        if: steps.deployment.outcome == 'failure'
+        run: sleep 30
+      - id: retry
+        if: steps.deployment.outcome == 'failure'
         uses: actions/deploy-pages@v5
