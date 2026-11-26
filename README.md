@@ -42,7 +42,7 @@ import Foldbox from 'foldbox';
 import 'foldbox/dist/foldbox.min.css';
 ```
 
-`import` gets the ES module build (`dist/foldbox.mjs`) and `require( 'foldbox' )` the UMD build. TypeScript types are included, so editors autocomplete the options and items.
+`import` gets the ES module build (`dist/foldbox.mjs`), which also has named exports (`import { open, bind, grid } from 'foldbox'`), and `require( 'foldbox' )` the UMD build. TypeScript types are included, so editors autocomplete the options and items.
 
 Or from the jsDelivr CDN:
 
@@ -86,7 +86,7 @@ button.addEventListener( 'click', () => {
 ### Filter a grid
 
 ```js
-const grid = Foldbox.grid( document.querySelector( '.grid' ), { itemSelector: ':scope > .card' } );
+const grid = Foldbox.grid( '.grid', { itemSelector: ':scope > .card' } );
 
 grid.filter( '.weddings' ); // CSS selector
 grid.filter( '*' );         // everything

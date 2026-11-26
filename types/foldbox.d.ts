@@ -70,7 +70,7 @@ declare namespace Foldbox {
 		loop?: boolean;
 		/** Transition between items. Default `'slide'`. */
 		animation?: 'slide' | 'fade';
-		/** Transition length in milliseconds. Default `400`. */
+		/** Transition length in milliseconds. Default `400`. Values below 0 fall back to the default. */
 		speed?: number;
 		/** Element the gallery opens from, with a zoom effect. Default `null`. */
 		origin?: Element | null;
@@ -90,7 +90,7 @@ declare namespace Foldbox {
 		hideThumbsInFullscreen?: boolean;
 		/** Allow zooming images. Default `true`. */
 		zoom?: boolean;
-		/** Largest zoom factor. Default `3`. */
+		/** Largest zoom factor. Default `3`. Values below 1 fall back to the default. */
 		maxZoom?: number;
 		/** Show the fullscreen button. Default `true`. */
 		fullscreen?: boolean;
@@ -98,7 +98,7 @@ declare namespace Foldbox {
 		slideshow?: boolean;
 		/** Start the slideshow when the gallery opens. Default `false`. */
 		slideshowAutostart?: boolean;
-		/** Time per item in the slideshow, in milliseconds. Default `5000`. */
+		/** Time per item in the slideshow, in milliseconds. Default `5000`. Values below 100 fall back to the default. */
 		slideshowInterval?: number;
 		/** Show a download button. Default `false`. */
 		download?: boolean;
@@ -195,7 +195,8 @@ declare namespace Foldbox {
 	}
 
 	interface GridConstructor {
-		new ( element: Element, options?: GridOptions ): Grid;
+		/** Throws a `TypeError` when no element is found. */
+		new ( element: Element | string, options?: GridOptions ): Grid;
 		prototype: Grid;
 	}
 }
@@ -205,12 +206,12 @@ declare const Foldbox: {
 	readonly version: string;
 	/** Default options, shared by every gallery. Change them to set options for the whole page. */
 	defaults: Required<Omit<Foldbox.Options, 'labels'>> & { labels: Partial<Foldbox.Labels> };
-	/** Open a gallery. Strings are image or video URLs. */
+	/** Open a gallery. Strings are image or video URLs. Throws a `TypeError` when `items` isn't an array. */
 	open( items: Array<Foldbox.Item | string>, options?: Foldbox.Options ): Foldbox.Lightbox;
 	/** Open the links inside a container in a gallery. Returns a function that undoes it. */
 	bind( container: Element | string | null, options?: Foldbox.BindOptions ): () => void;
-	/** Make a filterable grid. */
-	grid( element: Element, options?: Foldbox.GridOptions ): Foldbox.Grid;
+	/** Make a filterable grid from an element or a CSS selector. Throws a `TypeError` when no element is found. */
+	grid( element: Element | string, options?: Foldbox.GridOptions ): Foldbox.Grid;
 	/** Close whichever gallery is open. */
 	close(): void;
 	Lightbox: Foldbox.LightboxConstructor;
